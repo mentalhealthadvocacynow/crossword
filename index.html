@@ -4,65 +4,274 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Daily Mental Health Crossword</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f4f7f5;color:#18231d;font-family:Arial,sans-serif}
-header{text-align:center;background:#fff;border-bottom:1px solid #ddd;padding:24px 12px}
-h1{margin:0;font-size:28px}
-#date{color:#68736d;margin-top:6px;font-size:14px}
-main{max-width:900px;margin:28px auto;padding:0 15px}
-.game{display:grid;grid-template-columns:400px 1fr;gap:35px}
-#grid{width:400px;max-width:94vw;aspect-ratio:1;display:grid;grid-template-columns:repeat(5,1fr);border:3px solid #222;background:#222;gap:1px;margin:auto}
-.cell{position:relative;background:#fff;cursor:pointer;user-select:none}
-.block{background:#202522!important;cursor:default}
-.number{position:absolute;top:3px;left:4px;font-size:10px;font-weight:bold}
-.letter{position:absolute;inset:12px 0 0;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:600}
-.hl{background:#dcefe7}.selected{background:#b9ddce!important}
-.correct{background:#ddf2df}.wrong{background:#ffdede}
-.active{margin-top:12px;background:#fff;border:1px solid #ddd;border-radius:7px;padding:11px;font-weight:600}
-.active b{color:#39745c;margin-right:8px}
-.controls{text-align:center;margin-top:12px}
-button{padding:9px 14px;margin:3px;border:1px solid #aaa;border-radius:7px;background:#fff;font-weight:600;cursor:pointer}
-#status{min-height:23px;margin-top:8px;font-weight:bold}
-#timer{font-size:13px;color:#68736d}
-h2{font-size:19px;border-bottom:2px solid #222;padding-bottom:6px;margin:0 0 8px}
-.clue{padding:8px;border-radius:6px;cursor:pointer;display:flex;gap:8px;line-height:1.35}
-.clue:hover,.chosen{background:#dcefe7}
-.cn{width:26px;font-weight:bold}
-.help{margin-top:28px;padding:15px;background:#fff;border:1px solid #ddd;border-radius:7px;color:#68736d;font-size:14px;line-height:1.5}
-@media(max-width:700px){.game{grid-template-columns:1fr}.clues{display:grid;grid-template-columns:1fr 1fr;gap:25px}}
-@media(max-width:450px){.clues{grid-template-columns:1fr}h1{font-size:24px}}
+
+:root{
+  --bg:#f4f7f5;
+  --white:#fff;
+  --text:#18231d;
+  --muted:#68736d;
+  --line:#26322b;
+  --green:#dcefe7;
+  --green2:#b9ddce;
+  --correct:#ddf2df;
+  --wrong:#ffdede;
+  --black:#202522;
+  --accent:#39745c;
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+}
+
+header{
+  background:#fff;
+  border-bottom:1px solid #dce2de;
+  text-align:center;
+  padding:24px 12px 20px;
+}
+
+h1{
+  margin:0;
+  font-size:29px;
+}
+
+#date{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:14px;
+}
+
+main{
+  max-width:900px;
+  margin:28px auto 60px;
+  padding:0 15px;
+}
+
+.game{
+  display:grid;
+  grid-template-columns:400px 1fr;
+  gap:35px;
+  align-items:start;
+}
+
+#grid{
+  width:400px;
+  max-width:94vw;
+  aspect-ratio:1;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  grid-template-rows:repeat(5,1fr);
+  gap:1px;
+  background:var(--line);
+  border:3px solid var(--line);
+  margin:auto;
+}
+
+.cell{
+  position:relative;
+  background:#fff;
+  cursor:pointer;
+  user-select:none;
+}
+
+.cell.block{
+  background:var(--black);
+  cursor:default;
+}
+
+.cell.hl{
+  background:var(--green);
+}
+
+.cell.selected{
+  background:var(--green2);
+}
+
+.cell.correct{
+  background:var(--correct);
+}
+
+.cell.wrong{
+  background:var(--wrong);
+}
+
+.number{
+  position:absolute;
+  top:3px;
+  left:4px;
+  font-size:10px;
+  font-weight:800;
+}
+
+.letter{
+  position:absolute;
+  inset:12px 0 0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:clamp(27px,7vw,40px);
+  font-weight:600;
+}
+
+.active{
+  margin-top:13px;
+  min-height:48px;
+  background:#fff;
+  border:1px solid #d8dfda;
+  border-radius:7px;
+  padding:11px 13px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  font-weight:600;
+}
+
+.active b{
+  color:var(--accent);
+}
+
+.controls{
+  text-align:center;
+  margin-top:12px;
+}
+
+button{
+  border:1px solid #aab3ad;
+  background:#fff;
+  border-radius:7px;
+  padding:9px 14px;
+  margin:3px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#edf1ee;
+}
+
+#status{
+  min-height:23px;
+  margin-top:8px;
+  font-weight:700;
+}
+
+#timer{
+  color:var(--muted);
+  font-size:13px;
+}
+
+.clues{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:26px;
+}
+
+h2{
+  font-size:19px;
+  border-bottom:2px solid var(--line);
+  margin:0 0 8px;
+  padding-bottom:6px;
+}
+
+.clue{
+  display:flex;
+  gap:8px;
+  padding:8px 7px;
+  border-radius:6px;
+  cursor:pointer;
+  line-height:1.35;
+}
+
+.clue:hover,
+.clue.chosen{
+  background:var(--green);
+}
+
+.cn{
+  width:26px;
+  flex:none;
+  font-weight:800;
+}
+
+.help{
+  margin-top:30px;
+  background:#fff;
+  border:1px solid #d8dfda;
+  border-radius:8px;
+  padding:16px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.55;
+}
+
+.help strong{
+  color:var(--text);
+}
+
+@media(max-width:700px){
+  .game{
+    grid-template-columns:1fr;
+  }
+
+  .clues{
+    grid-template-columns:1fr 1fr;
+    gap:22px;
+  }
+}
+
+@media(max-width:450px){
+  .clues{
+    grid-template-columns:1fr;
+  }
+
+  h1{
+    font-size:25px;
+  }
+}
 </style>
 </head>
 
 <body>
 
 <header>
-<h1>Daily Mental Health Crossword</h1>
-<div id="date"></div>
+  <h1>Daily Mental Health Crossword</h1>
+  <div id="date"></div>
 </header>
 
 <main>
+
 <div class="game">
 
 <section>
+
 <div id="grid"></div>
 
 <div class="active">
-<b id="activeNumber"></b>
-<span id="activeClue"></span>
+  <b id="activeNumber"></b>
+  <span id="activeClue"></span>
 </div>
 
 <div class="controls">
+
 <button onclick="checkPuzzle()">Check</button>
 <button onclick="clearPuzzle()">Clear</button>
 <button onclick="revealPuzzle()">Reveal</button>
+
 <div id="status"></div>
 <div id="timer"></div>
+
 </div>
+
 </section>
 
 <section class="clues">
+
 <div>
 <h2>Across</h2>
 <div id="across"></div>
@@ -72,6 +281,7 @@ h2{font-size:19px;border-bottom:2px solid #222;padding-bottom:6px;margin:0 0 8px
 <h2>Down</h2>
 <div id="down"></div>
 </div>
+
 </section>
 
 </div>
@@ -80,19 +290,22 @@ h2{font-size:19px;border-bottom:2px solid #222;padding-bottom:6px;margin:0 0 8px
 <strong>How to play:</strong>
 Click a square and type a letter.
 Click the selected square again to switch between Across and Down.
-Use the arrow keys to move.
+Use the arrow keys to move around the puzzle.
+Press Backspace to erase.
 Your progress is saved automatically.
-A new crossword is generated each day.
+A new crossword appears every day.
 </div>
+
 </main>
 
 <script>
 
 /* =========================================================
    MENTAL HEALTH WORD BANK
-   ========================================================= */
+   Every answer is 3–5 letters.
+========================================================= */
 
-const WORDS={
+const WORDS = {
 
 ACT:"Acceptance and Commitment Therapy",
 CBT:"Cognitive Behavioral Therapy",
@@ -114,12 +327,16 @@ OCD:"Obsessive-Compulsive Disorder",
 SAD:"Seasonal Affective Disorder",
 SUD:"Substance Use Disorder",
 
-EGO:"The part of personality involved with reality",
+DSM:"Diagnostic and Statistical Manual",
+MSE:"Mental Status Examination",
+PHQ:"Patient Health Questionnaire",
+
+EGO:"Part of personality involved with reality",
 MOOD:"A person's emotional state",
 FEAR:"An emotional response to perceived threat",
 SHAME:"A painful feeling of negative self-evaluation",
 GRIEF:"The emotional response to loss",
-PANIC:"A sudden surge of intense fear or distress",
+PANIC:"A sudden surge of intense fear",
 WORRY:"Repeated thoughts about possible problems",
 DREAD:"Strong anticipation of something feared",
 
@@ -146,581 +363,905 @@ VALID:"Recognized as understandable or legitimate",
 ANGER:"A strong emotional response",
 AWARE:"Conscious of thoughts or feelings",
 THINK:"To use the mind to process information",
-RESET:"A fresh start after stress or overload"
+RESET:"A fresh start after stress or overload",
+MANIA:"A period of unusually elevated or irritable mood",
+MANIC:"Relating to a manic episode",
+ABUSE:"Harmful or abusive behavior",
+CRIES:"Expressions of strong emotion",
+TEARS:"Physical expression sometimes accompanying emotion",
+EMOTE:"To express emotion",
+INNER:"Existing within the mind or self",
+WHOLE:"Integrated or complete",
+ALIVE:"Experiencing life and awareness",
+SENSE:"A way of perceiving or experiencing",
+DREAM:"Mental experiences during sleep",
+FEELS:"Informal term for emotional experiences",
+POWER:"A sense of agency or control",
+GROW:"To develop or improve",
+GROWTH:"Development or positive change",
+LISTEN:"To pay attention to another person",
+PAUSE:"A brief break during stress",
+SHIFT:"A change in perspective or state",
+LIGHT:"A metaphor for hope or positivity",
+WARM:"Comforting or supportive",
+KIND:"Compassionate or considerate",
+OPEN:"Willing to communicate or receive support",
+SEEN:"Feeling recognized or understood",
+HEARD:"Feeling listened to or understood",
+BELONG:"To feel accepted as part of a group",
+MIND:"The part of a person involved in thought",
+BODY:"The physical self, closely connected with mental wellbeing",
+SELF:"A person's identity or sense of who they are",
+CARE:"Attention given to wellbeing",
+SUPPORT:"Help or encouragement from others"
 
 };
 
-const wordList=Object.keys(WORDS)
-.filter(w=>w.length>=3&&w.length<=5);
+
+/* Keep only valid 3–5 letter answers. */
+
+const WORDS_CLEAN={};
+
+Object.keys(WORDS).forEach(word=>{
+
+  const w=word.toUpperCase();
+
+  if(
+    w.length>=3 &&
+    w.length<=5 &&
+    /^[A-Z]+$/.test(w)
+  ){
+
+    WORDS_CLEAN[w]=WORDS[word];
+
+  }
+
+});
+
+const WORD_LIST=Object.keys(WORDS_CLEAN);
 
 const SIZE=5;
 
 
 /* =========================================================
-   DAILY DATE
-   ========================================================= */
+   DATE
+========================================================= */
 
 const today=new Date();
 
 const dateKey=
-today.getFullYear()+"-"+
-String(today.getMonth()+1).padStart(2,"0")+"-"+
-String(today.getDate()).padStart(2,"0");
+  today.getFullYear()+"-"+
+  String(today.getMonth()+1).padStart(2,"0")+"-"+
+  String(today.getDate()).padStart(2,"0");
 
 document.getElementById("date").textContent=
-today.toLocaleDateString(undefined,{
-weekday:"long",
-month:"long",
-day:"numeric",
-year:"numeric"
-});
+  today.toLocaleDateString(undefined,{
+    weekday:"long",
+    month:"long",
+    day:"numeric",
+    year:"numeric"
+  });
 
 
 /* =========================================================
-   SEEDED RANDOM NUMBER GENERATOR
-   ========================================================= */
+   SEEDED RANDOM
+========================================================= */
 
-let seed=hash(dateKey);
+function hashString(str){
 
-function hash(str){
-let h=2166136261;
-for(let i=0;i<str.length;i++){
-h^=str.charCodeAt(i);
-h+=(h<<1)+(h<<4)+(h<<7)+(h<<8)+(h<<24);
+  let h=2166136261;
+
+  for(let i=0;i<str.length;i++){
+
+    h^=str.charCodeAt(i);
+
+    h+=
+      (h<<1)+
+      (h<<4)+
+      (h<<7)+
+      (h<<8)+
+      (h<<24);
+
+  }
+
+  return h>>>0;
 }
-return h>>>0;
-}
+
+
+let seed=hashString(dateKey);
+
 
 function random(){
-seed=(seed*1664525+1013904223)>>>0;
-return seed/4294967296;
+
+  seed=
+    (seed*1664525+1013904223)>>>0;
+
+  return seed/4294967296;
+
 }
 
-function shuffle(arr){
-const a=[...arr];
-for(let i=a.length-1;i>0;i--){
-const j=Math.floor(random()*(i+1));
-[a[i],a[j]]=[a[j],a[i]];
-}
-return a;
+
+function shuffle(array){
+
+  const a=[...array];
+
+  for(let i=a.length-1;i>0;i--){
+
+    const j=
+      Math.floor(random()*(i+1));
+
+    [a[i],a[j]]=
+    [a[j],a[i]];
+
+  }
+
+  return a;
 }
 
 
 /* =========================================================
-   CROSSWORD GENERATION
-   ========================================================= */
+   GRID HELPERS
+========================================================= */
 
-function makeGrid(rows){
+function createEmptyGrid(){
 
-const grid=
-Array.from(
-{length:SIZE},
-()=>Array(SIZE).fill("#")
-);
-
-rows.forEach((r,row)=>{
-
-for(let i=0;i<r.word.length;i++){
-grid[row][r.start+i]=r.word[i];
-}
-
-});
-
-return grid;
-}
-
-
-function getDown(grid){
-
-const result=[];
-
-for(let col=0;col<SIZE;col++){
-
-let row=0;
-
-while(row<SIZE){
-
-if(grid[row][col]==="#"){
-row++;
-continue;
-}
-
-const start=row;
-let word="";
-
-while(
-row<SIZE &&
-grid[row][col]!="#"
-){
-word+=grid[row][col];
-row++;
-}
-
-result.push({
-word,
-row:start,
-col
-});
+  return Array.from(
+    {length:SIZE},
+    ()=>Array(SIZE).fill("#")
+  );
 
 }
 
-}
 
-return result;
-}
+/*
+  Each row has exactly one Across entry.
+*/
 
+function placeRow(grid,row,word,start){
 
-function validPrefix(grid){
+  const next=
+    grid.map(r=>[...r]);
 
-for(let col=0;col<SIZE;col++){
+  for(let col=0;col<SIZE;col++){
 
-let row=0;
+    if(
+      col>=start &&
+      col<start+word.length
+    ){
 
-while(row<SIZE){
+      next[row][col]=
+        word[col-start];
 
-if(grid[row][col]==="#"){
-row++;
-continue;
-}
+    }else{
 
-let word="";
+      next[row][col]="#";
 
-while(
-row<SIZE &&
-grid[row][col]!="#"
-){
-word+=grid[row][col];
-row++;
-}
+    }
 
-if(word.length<3){
-return false;
-}
+  }
 
-if(
-!wordList.some(w=>w.startsWith(word))
-){
-return false;
-}
+  return next;
 
 }
 
-}
 
-return true;
-}
+/* =========================================================
+   DOWN RUNS
+========================================================= */
 
+function getDownRuns(grid, rowsFilled){
 
-function validFinal(grid){
+  const runs=[];
 
-const down=getDown(grid);
+  for(let col=0;col<SIZE;col++){
 
-if(down.length!==5)
-return false;
+    let row=0;
 
-for(const d of down){
+    while(row<rowsFilled){
 
-if(
-d.word.length<3 ||
-d.word.length>5 ||
-!WORDS[d.word]
-)
-return false;
+      if(grid[row][col]==="#"){
 
-}
+        row++;
+        continue;
 
-return true;
-}
+      }
 
+      const start=row;
+      let word="";
 
-function generate(){
+      while(
+        row<rowsFilled &&
+        grid[row][col]!="#"
+      ){
 
-let rows=[];
-let attempts=0;
+        word+=grid[row][col];
+        row++;
 
-function search(row){
+      }
 
-attempts++;
+      runs.push({
+        word,
+        start,
+        end:row-1,
+        col
+      });
 
-if(attempts>300000)
-return null;
+    }
 
-if(row===5){
+  }
 
-const grid=makeGrid(rows);
-
-if(validFinal(grid)){
-return {
-grid,
-rows:[...rows]
-};
-}
-
-return null;
-}
-
-for(const word of shuffle(wordList)){
-
-if(rows.some(r=>r.word===word))
-continue;
-
-const starts=[];
-
-for(
-let start=0;
-start+word.length<=5;
-start++
-){
-starts.push(start);
-}
-
-for(const start of shuffle(starts)){
-
-rows.push({word,start});
-
-const grid=makeGrid(rows);
-
-if(validPrefix(grid)){
-
-const result=search(row+1);
-
-if(result)
-return result;
+  return runs;
 
 }
 
-rows.pop();
+
+/* =========================================================
+   PREFIX VALIDATION
+========================================================= */
+
+function isValidPrefix(prefix){
+
+  if(prefix.length===0)
+    return true;
+
+  return WORD_LIST.some(
+    word=>word.startsWith(prefix)
+  );
 
 }
 
+
+/*
+  When a Down run is currently touching the bottom of the
+  partially constructed grid, it is NOT finished yet.
+
+  When it ends at a block, it MUST already be a real word.
+*/
+
+function partialGridValid(grid,rowsFilled){
+
+  const runs=
+    getDownRuns(grid,rowsFilled);
+
+
+  for(const run of runs){
+
+    const atCurrentBottom=
+      run.end===rowsFilled-1;
+
+
+    if(atCurrentBottom){
+
+      /*
+        It may continue on the next row.
+        Therefore a prefix is acceptable.
+      */
+
+      if(!isValidPrefix(run.word))
+        return false;
+
+    }else{
+
+      /*
+        It has been terminated by a block.
+        It must be a complete 3–5 letter answer.
+      */
+
+      if(
+        run.word.length<3 ||
+        run.word.length>5 ||
+        !WORDS_CLEAN[run.word]
+      ){
+
+        return false;
+
+      }
+
+    }
+
+  }
+
+  return true;
+
 }
 
-return null;
+
+/* =========================================================
+   FINAL VALIDATION
+========================================================= */
+
+function finalGridValid(grid){
+
+  const runs=
+    getDownRuns(grid,SIZE);
+
+
+  /*
+    Exactly five Down entries.
+  */
+
+  if(runs.length!==5)
+    return false;
+
+
+  for(const run of runs){
+
+    if(
+      run.word.length<3 ||
+      run.word.length>5
+    ){
+
+      return false;
+
+    }
+
+    if(!WORDS_CLEAN[run.word])
+      return false;
+
+  }
+
+
+  return true;
+
 }
 
-return search(0);
+
+/* =========================================================
+   CROSSWORD GENERATOR
+========================================================= */
+
+function generatePuzzle(){
+
+  let attempts=0;
+
+  const rows=[];
+
+
+  function search(row,grid){
+
+    attempts++;
+
+    if(attempts>1000000)
+      return null;
+
+
+    if(row===SIZE){
+
+      if(finalGridValid(grid)){
+
+        return {
+          grid,
+          rows:[...rows]
+        };
+
+      }
+
+      return null;
+
+    }
+
+
+    /*
+      Try shorter and longer answers in mixed order.
+    */
+
+    let words=
+      shuffle(WORD_LIST);
+
+
+    for(const word of words){
+
+      /*
+        Do not reuse an answer.
+      */
+
+      if(
+        rows.some(
+          r=>r.word===word
+        )
+      ){
+
+        continue;
+
+      }
+
+
+      const starts=[];
+
+      for(
+        let start=0;
+        start+word.length<=SIZE;
+        start++
+      ){
+
+        starts.push(start);
+
+      }
+
+
+      for(const start of shuffle(starts)){
+
+        const nextGrid=
+          placeRow(
+            grid,
+            row,
+            word,
+            start
+          );
+
+
+        if(
+          !partialGridValid(
+            nextGrid,
+            row+1
+          )
+        ){
+
+          continue;
+
+        }
+
+
+        rows.push({
+          word,
+          start
+        });
+
+
+        const result=
+          search(
+            row+1,
+            nextGrid
+          );
+
+
+        if(result)
+          return result;
+
+
+        rows.pop();
+
+      }
+
+    }
+
+
+    return null;
+
+  }
+
+
+  return search(
+    0,
+    createEmptyGrid()
+  );
+
 }
 
 
-let puzzle=generate();
+/* =========================================================
+   GENERATE WITH RETRIES
+========================================================= */
+
+let puzzle=null;
+
+for(let retry=0;retry<100&&!puzzle;retry++){
+
+  seed=
+    hashString(
+      dateKey+
+      "-daily-"+retry
+    );
+
+  puzzle=
+    generatePuzzle();
+
+}
+
+
+/* =========================================================
+   SAFETY FALLBACK
+========================================================= */
 
 if(!puzzle){
 
-for(let i=0;i<30&&!puzzle;i++){
+  /*
+    This should only occur if the vocabulary cannot produce
+    a valid 5x5 arrangement.
+  */
 
-seed=hash(dateKey+"-"+i);
-puzzle=generate();
+  document.body.innerHTML=`
+    <main style="
+      max-width:600px;
+      margin:80px auto;
+      padding:25px;
+      text-align:center;
+      font-family:Arial,sans-serif
+    ">
+      <h1>Today's crossword is unavailable.</h1>
+      <p>Please refresh the page.</p>
+    </main>
+  `;
+
+  throw new Error(
+    "Unable to generate a valid crossword."
+  );
 
 }
 
-}
 
-if(!puzzle){
-
-document.body.innerHTML=
-"<h2 style='text-align:center;margin:80px'>Unable to generate today's puzzle. Please refresh.</h2>";
-
-throw new Error("Puzzle generation failed");
-
-}
+const solution=puzzle.grid;
 
 
 /* =========================================================
    ENTRY NUMBERING
-   ========================================================= */
-
-const solution=puzzle.grid;
+========================================================= */
 
 const entries={
-across:[],
-down:[]
+  across:[],
+  down:[]
 };
 
 
 function buildEntries(){
 
-let number=1;
-
-for(let row=0;row<5;row++){
-
-for(let col=0;col<5;col++){
-
-if(solution[row][col]==="#")
-continue;
-
-const acrossStart=
-(
-col===0 ||
-solution[row][col-1]==="#"
-)&&
-col+1<5 &&
-solution[row][col+1]!="#";
-
-const downStart=
-(
-row===0 ||
-solution[row-1][col]==="#"
-)&&
-row+1<5 &&
-solution[row+1][col]!="#";
-
-let used=false;
+  let number=1;
 
 
-if(acrossStart){
+  for(let row=0;row<SIZE;row++){
 
-let word="";
-const coords=[];
+    for(let col=0;col<SIZE;col++){
 
-for(
-let x=col;
-x<5&&solution[row][x]!="#";
-x++
-){
+      if(solution[row][col]==="#")
+        continue;
 
-word+=solution[row][x];
-coords.push([row,x]);
+
+      const acrossStart=
+        (
+          col===0 ||
+          solution[row][col-1]==="#"
+        ) &&
+        col+1<SIZE &&
+        solution[row][col+1]!="#";
+
+
+      const downStart=
+        (
+          row===0 ||
+          solution[row-1][col]==="#"
+        ) &&
+        row+1<SIZE &&
+        solution[row+1][col]!="#";
+
+
+      let used=false;
+
+
+      if(acrossStart){
+
+        const coords=[];
+        let word="";
+
+        let x=col;
+
+        while(
+          x<SIZE &&
+          solution[row][x]!="#"
+        ){
+
+          coords.push([row,x]);
+          word+=solution[row][x];
+
+          x++;
+
+        }
+
+
+        entries.across.push({
+          number,
+          word,
+          coords
+        });
+
+        used=true;
+
+      }
+
+
+      if(downStart){
+
+        const coords=[];
+        let word="";
+
+        let y=row;
+
+        while(
+          y<SIZE &&
+          solution[y][col]!="#"
+        ){
+
+          coords.push([y,col]);
+          word+=solution[y][col];
+
+          y++;
+
+        }
+
+
+        entries.down.push({
+          number,
+          word,
+          coords
+        });
+
+        used=true;
+
+      }
+
+
+      if(used)
+        number++;
+
+    }
+
+  }
 
 }
 
-entries.across.push({
-number,
-word,
-coords
-});
-
-used=true;
-
-}
-
-
-if(downStart){
-
-let word="";
-const coords=[];
-
-for(
-let y=row;
-y<5&&solution[y][col]!="#";
-y++
-){
-
-word+=solution[y][col];
-coords.push([y,col]);
-
-}
-
-entries.down.push({
-number,
-word,
-coords
-});
-
-used=true;
-
-}
-
-if(used)
-number++;
-
-}
-
-}
-
-}
 
 buildEntries();
 
 
+/* =========================================================
+   FINAL HARD CHECK
+========================================================= */
+
 if(
-entries.across.length!==5 ||
-entries.down.length!==5
+  entries.across.length!==5 ||
+  entries.down.length!==5
 ){
 
-throw new Error(
-"Invalid crossword numbering"
-);
+  throw new Error(
+    "Puzzle does not contain exactly five Across and five Down entries."
+  );
+
+}
+
+
+for(
+  const entry of
+  [...entries.across,...entries.down]
+){
+
+  if(
+    entry.word.length<3 ||
+    entry.word.length>5 ||
+    !WORDS_CLEAN[entry.word]
+  ){
+
+    throw new Error(
+      "Invalid answer: "+entry.word
+    );
+
+  }
 
 }
 
 
 /* =========================================================
-   GRID
-   ========================================================= */
+   GRID UI
+========================================================= */
+
+const gridElement=
+  document.getElementById("grid");
 
 const cells=[];
 
+
 function getNumber(row,col){
 
-for(const e of entries.across){
-if(
-e.coords[0][0]===row &&
-e.coords[0][1]===col
-)
-return e.number;
-}
+  for(const entry of entries.across){
 
-for(const e of entries.down){
-if(
-e.coords[0][0]===row &&
-e.coords[0][1]===col
-)
-return e.number;
-}
+    if(
+      entry.coords[0][0]===row &&
+      entry.coords[0][1]===col
+    ){
 
-return null;
+      return entry.number;
+
+    }
+
+  }
+
+
+  for(const entry of entries.down){
+
+    if(
+      entry.coords[0][0]===row &&
+      entry.coords[0][1]===col
+    ){
+
+      return entry.number;
+
+    }
+
+  }
+
+
+  return null;
+
 }
 
 
 function drawGrid(){
 
-const board=
-document.getElementById("grid");
-
-board.innerHTML="";
-
-for(let row=0;row<5;row++){
-
-cells[row]=[];
-
-for(let col=0;col<5;col++){
-
-const el=
-document.createElement("div");
-
-el.className="cell";
+  gridElement.innerHTML="";
 
 
-if(solution[row][col]==="#"){
+  for(let row=0;row<SIZE;row++){
 
-el.classList.add("block");
-
-cells[row][col]={
-element:el,
-letter:""
-};
-
-board.appendChild(el);
-continue;
-
-}
+    cells[row]=[];
 
 
-const number=getNumber(row,col);
+    for(let col=0;col<SIZE;col++){
 
-if(number){
+      const cell=
+        document.createElement("div");
 
-const n=
-document.createElement("span");
-
-n.className="number";
-n.textContent=number;
-
-el.appendChild(n);
-
-}
+      cell.className="cell";
 
 
-const letter=
-document.createElement("span");
+      if(solution[row][col]==="#"){
 
-letter.className="letter";
+        cell.classList.add("block");
 
-el.appendChild(letter);
+        cells[row][col]={
+          element:cell,
+          letter:""
+        };
 
+        gridElement.appendChild(cell);
 
-cells[row][col]={
-element:el,
-letterElement:letter,
-letter:""
-};
+        continue;
 
-
-el.onclick=()=>{
-
-if(
-selectedRow===row &&
-selectedCol===col
-){
-
-direction=
-direction==="across"
-?"down"
-:"across";
-
-}else{
-
-selectedRow=row;
-selectedCol=col;
-
-}
-
-updateSelection();
-
-};
+      }
 
 
-board.appendChild(el);
+      const number=
+        getNumber(row,col);
 
-}
 
-}
+      if(number){
+
+        const n=
+          document.createElement("span");
+
+        n.className="number";
+        n.textContent=number;
+
+        cell.appendChild(n);
+
+      }
+
+
+      const letter=
+        document.createElement("span");
+
+      letter.className="letter";
+
+      cell.appendChild(letter);
+
+
+      cells[row][col]={
+        element:cell,
+        letterElement:letter,
+        letter:""
+      };
+
+
+      cell.onclick=()=>{
+
+        if(
+          selectedRow===row &&
+          selectedCol===col
+        ){
+
+          direction=
+            direction==="across"
+              ?"down"
+              :"across";
+
+        }else{
+
+          selectedRow=row;
+          selectedCol=col;
+
+        }
+
+
+        updateSelection();
+
+      };
+
+
+      gridElement.appendChild(cell);
+
+    }
+
+  }
 
 }
 
 
 /* =========================================================
    CLUES
-   ========================================================= */
+========================================================= */
 
 function drawClues(){
 
-for(const type of ["across","down"]){
+  drawClueList(
+    "across",
+    document.getElementById("across")
+  );
 
-const box=
-document.getElementById(type);
-
-box.innerHTML="";
-
-entries[type].forEach(
-(entry,index)=>{
-
-const clue=
-document.createElement("div");
-
-clue.className="clue";
-
-clue.innerHTML=
-`<span class="cn">${entry.number}.</span>
-<span>${WORDS[entry.word]}</span>`;
-
-clue.onclick=()=>{
-
-direction=type;
-
-selectedRow=
-entry.coords[0][0];
-
-selectedCol=
-entry.coords[0][1];
-
-updateSelection();
-
-};
-
-box.appendChild(clue);
+  drawClueList(
+    "down",
+    document.getElementById("down")
+  );
 
 }
-);
 
-}
+
+function drawClueList(type,container){
+
+  container.innerHTML="";
+
+
+  entries[type].forEach(
+    (entry,index)=>{
+
+      const item=
+        document.createElement("div");
+
+      item.className="clue";
+
+      item.innerHTML=
+        `
+        <span class="cn">
+          ${entry.number}.
+        </span>
+        <span>
+          ${WORDS_CLEAN[entry.word]}
+        </span>
+        `;
+
+
+      item.onclick=()=>{
+
+        direction=type;
+
+        selectedRow=
+          entry.coords[0][0];
+
+        selectedCol=
+          entry.coords[0][1];
+
+        updateSelection();
+
+      };
+
+
+      container.appendChild(item);
+
+    }
+  );
 
 }
 
 
 /* =========================================================
    SELECTION
-   ========================================================= */
+========================================================= */
 
 let selectedRow=0;
 let selectedCol=0;
@@ -729,594 +1270,758 @@ let direction="across";
 
 function currentEntry(){
 
-return entries[direction].find(
-e=>e.coords.some(
-([r,c])=>
-r===selectedRow &&
-c===selectedCol
-)
-);
+  return entries[direction].find(
+    entry=>
+      entry.coords.some(
+        ([r,c])=>
+          r===selectedRow &&
+          c===selectedCol
+      )
+  );
 
 }
 
 
 function updateSelection(){
 
-document
-.querySelectorAll(".cell")
-.forEach(
-x=>x.classList.remove(
-"hl",
-"selected"
-)
-);
-
-const entry=currentEntry();
-
-if(!entry)
-return;
-
-entry.coords.forEach(
-([r,c])=>
-cells[r][c]
-.element
-.classList.add("hl")
-);
-
-cells[selectedRow][selectedCol]
-.element
-.classList.add("selected");
+  document
+    .querySelectorAll(".cell")
+    .forEach(
+      cell=>{
+        cell.classList.remove(
+          "hl",
+          "selected"
+        );
+      }
+    );
 
 
-document.getElementById(
-"activeNumber"
-).textContent=
-entry.number+
-(direction==="across"?"A":"D");
+  const entry=
+    currentEntry();
 
 
-document.getElementById(
-"activeClue"
-).textContent=
-WORDS[entry.word];
+  if(!entry)
+    return;
 
 
-document
-.querySelectorAll(".clue")
-.forEach(
-x=>x.classList.remove("chosen")
-);
+  entry.coords.forEach(
+    ([r,c])=>{
+      cells[r][c]
+        .element
+        .classList.add("hl");
+    }
+  );
 
-const list=
-document.getElementById(direction)
-.children;
 
-const index=
-entries[direction].indexOf(entry);
+  cells[selectedRow][selectedCol]
+    .element
+    .classList.add("selected");
 
-if(list[index])
-list[index].classList.add("chosen");
+
+  document.getElementById(
+    "activeNumber"
+  ).textContent=
+    `${entry.number}${direction==="across"?"A":"D"}`;
+
+
+  document.getElementById(
+    "activeClue"
+  ).textContent=
+    WORDS_CLEAN[entry.word];
+
+
+  document
+    .querySelectorAll(".clue")
+    .forEach(
+      clue=>
+        clue.classList.remove("chosen")
+    );
+
+
+  const index=
+    entries[direction]
+      .indexOf(entry);
+
+
+  const list=
+    document.getElementById(direction)
+      .children;
+
+
+  if(list[index])
+    list[index].classList.add("chosen");
 
 }
 
 
 /* =========================================================
-   KEYBOARD
-   ========================================================= */
+   KEYBOARD INPUT
+========================================================= */
 
 document.addEventListener(
-"keydown",
-e=>{
+  "keydown",
+  event=>{
 
-if(/^[a-zA-Z]$/.test(e.key)){
+    if(/^[a-zA-Z]$/.test(event.key)){
 
-enterLetter(
-e.key.toUpperCase()
+      enterLetter(
+        event.key.toUpperCase()
+      );
+
+      moveForward();
+
+      event.preventDefault();
+
+      return;
+
+    }
+
+
+    if(event.key==="Backspace"){
+
+      backspace();
+
+      event.preventDefault();
+
+      return;
+
+    }
+
+
+    if(event.key==="Tab"){
+
+      direction=
+        direction==="across"
+          ?"down"
+          :"across";
+
+      updateSelection();
+
+      event.preventDefault();
+
+      return;
+
+    }
+
+
+    if(event.key==="ArrowLeft"){
+
+      move(
+        0,
+        -1
+      );
+
+      event.preventDefault();
+
+    }
+
+
+    if(event.key==="ArrowRight"){
+
+      move(
+        0,
+        1
+      );
+
+      event.preventDefault();
+
+    }
+
+
+    if(event.key==="ArrowUp"){
+
+      move(
+        -1,
+        0
+      );
+
+      event.preventDefault();
+
+    }
+
+
+    if(event.key==="ArrowDown"){
+
+      move(
+        1,
+        0
+      );
+
+      event.preventDefault();
+
+    }
+
+  }
 );
 
-moveForward();
 
-e.preventDefault();
-
-return;
-}
-
-
-if(e.key==="Backspace"){
-
-backspace();
-
-e.preventDefault();
-
-return;
-}
-
-
-if(e.key==="Tab"){
-
-direction=
-direction==="across"
-?"down"
-:"across";
-
-updateSelection();
-
-e.preventDefault();
-
-return;
-}
-
-
-if(e.key==="ArrowLeft")
-move(0,-1);
-
-if(e.key==="ArrowRight")
-move(0,1);
-
-if(e.key==="ArrowUp")
-move(-1,0);
-
-if(e.key==="ArrowDown")
-move(1,0);
-
-}
-);
-
+/* =========================================================
+   ENTER LETTER
+========================================================= */
 
 function enterLetter(letter){
 
-const cell=
-cells[selectedRow][selectedCol];
+  const cell=
+    cells[selectedRow][selectedCol];
 
-if(!cell)
-return;
 
-cell.letter=letter;
+  if(!cell)
+    return;
 
-cell.letterElement.textContent=letter;
 
-cell.element.classList.remove(
-"correct",
-"wrong"
-);
+  cell.letter=letter;
 
-save();
+  cell.letterElement.textContent=
+    letter;
+
+
+  cell.element.classList.remove(
+    "correct",
+    "wrong"
+  );
+
+
+  saveProgress();
 
 }
 
+
+/* =========================================================
+   BACKSPACE
+========================================================= */
 
 function backspace(){
 
-const cell=
-cells[selectedRow][selectedCol];
+  const cell=
+    cells[selectedRow][selectedCol];
 
-if(cell.letter){
 
-cell.letter="";
-cell.letterElement.textContent="";
+  if(!cell)
+    return;
 
-save();
 
-return;
-}
+  if(cell.letter){
 
-moveBackward();
+    cell.letter="";
 
-const previous=
-cells[selectedRow][selectedCol];
+    cell.letterElement.textContent="";
 
-previous.letter="";
-previous.letterElement.textContent="";
+    saveProgress();
 
-save();
+    return;
+
+  }
+
+
+  moveBackward();
+
+
+  const previous=
+    cells[selectedRow][selectedCol];
+
+
+  if(previous){
+
+    previous.letter="";
+
+    previous.letterElement.textContent="";
+
+  }
+
+
+  saveProgress();
 
 }
 
 
 /* =========================================================
    MOVEMENT
-   ========================================================= */
+========================================================= */
 
 function moveForward(){
 
-const entry=currentEntry();
+  const entry=
+    currentEntry();
 
-if(!entry)
-return;
 
-const index=
-entry.coords.findIndex(
-([r,c])=>
-r===selectedRow &&
-c===selectedCol
-);
+  if(!entry)
+    return;
 
-if(index<entry.coords.length-1){
 
-[
-selectedRow,
-selectedCol
-]=entry.coords[index+1];
+  const index=
+    entry.coords.findIndex(
+      ([r,c])=>
+        r===selectedRow &&
+        c===selectedCol
+    );
 
-updateSelection();
 
-}
+  if(
+    index>=0 &&
+    index<entry.coords.length-1
+  ){
+
+    [
+      selectedRow,
+      selectedCol
+    ]=
+      entry.coords[index+1];
+
+    updateSelection();
+
+  }
 
 }
 
 
 function moveBackward(){
 
-const entry=currentEntry();
+  const entry=
+    currentEntry();
 
-if(!entry)
-return;
 
-const index=
-entry.coords.findIndex(
-([r,c])=>
-r===selectedRow &&
-c===selectedCol
-);
+  if(!entry)
+    return;
 
-if(index>0){
 
-[
-selectedRow,
-selectedCol
-]=entry.coords[index-1];
+  const index=
+    entry.coords.findIndex(
+      ([r,c])=>
+        r===selectedRow &&
+        c===selectedCol
+    );
 
-updateSelection();
 
-}
+  if(index>0){
+
+    [
+      selectedRow,
+      selectedCol
+    ]=
+      entry.coords[index-1];
+
+    updateSelection();
+
+  }
 
 }
 
 
 function move(dr,dc){
 
-let r=selectedRow+dr;
-let c=selectedCol+dc;
+  let row=
+    selectedRow+dr;
 
-while(
-r>=0&&r<5&&c>=0&&c<5
-){
+  let col=
+    selectedCol+dc;
 
-if(solution[r][c]!=="#"){
 
-selectedRow=r;
-selectedCol=c;
+  while(
+    row>=0 &&
+    row<SIZE &&
+    col>=0 &&
+    col<SIZE
+  ){
 
-updateSelection();
+    if(solution[row][col]!=="#"){
 
-return;
-}
+      selectedRow=row;
+      selectedCol=col;
 
-r+=dr;
-c+=dc;
+      updateSelection();
 
-}
+      return;
+
+    }
+
+
+    row+=dr;
+    col+=dc;
+
+  }
 
 }
 
 
 /* =========================================================
    CHECK
-   ========================================================= */
+========================================================= */
 
 function checkPuzzle(){
 
-let wrong=0;
-let empty=0;
-
-for(let row=0;row<5;row++){
-
-for(let col=0;col<5;col++){
-
-if(solution[row][col]==="#")
-continue;
-
-const cell=cells[row][col];
-
-cell.element.classList.remove(
-"correct",
-"wrong"
-);
-
-if(!cell.letter){
-
-empty++;
-continue;
-
-}
-
-if(
-cell.letter===
-solution[row][col]
-){
-
-cell.element.classList.add(
-"correct"
-);
-
-}else{
-
-wrong++;
-
-cell.element.classList.add(
-"wrong"
-);
-
-}
-
-}
-
-}
+  let wrong=0;
+  let empty=0;
 
 
-const status=
-document.getElementById("status");
+  for(let row=0;row<SIZE;row++){
+
+    for(let col=0;col<SIZE;col++){
+
+      if(solution[row][col]==="#")
+        continue;
 
 
-if(wrong){
+      const cell=
+        cells[row][col];
 
-status.textContent=
-`${wrong} incorrect letter${wrong===1?"":"s"}.`;
 
-}else if(empty){
+      cell.element.classList.remove(
+        "correct",
+        "wrong"
+      );
 
-status.textContent=
-"So far, so good.";
 
-}else{
+      if(!cell.letter){
 
-status.textContent=
-"🎉 Puzzle complete!";
+        empty++;
 
-localStorage.setItem(
-"complete-"+dateKey,
-"1"
-);
+        continue;
 
-}
+      }
+
+
+      if(
+        cell.letter===
+        solution[row][col]
+      ){
+
+        cell.element.classList.add(
+          "correct"
+        );
+
+      }else{
+
+        wrong++;
+
+        cell.element.classList.add(
+          "wrong"
+        );
+
+      }
+
+    }
+
+  }
+
+
+  const status=
+    document.getElementById("status");
+
+
+  if(wrong){
+
+    status.textContent=
+      `${wrong} incorrect letter${wrong===1?"":"s"}.`;
+
+    status.style.color=
+      "#b3261e";
+
+  }else if(empty){
+
+    status.textContent=
+      "So far, so good.";
+
+    status.style.color=
+      "#555";
+
+  }else{
+
+    status.textContent=
+      "🎉 Puzzle complete!";
+
+    status.style.color=
+      "#287a4b";
+
+    localStorage.setItem(
+      "complete-"+dateKey,
+      "1"
+    );
+
+  }
 
 }
 
 
 /* =========================================================
    CLEAR
-   ========================================================= */
+========================================================= */
 
 function clearPuzzle(){
 
-for(let row=0;row<5;row++){
+  for(let row=0;row<SIZE;row++){
 
-for(let col=0;col<5;col++){
+    for(let col=0;col<SIZE;col++){
 
-if(solution[row][col]==="#")
-continue;
+      if(solution[row][col]==="#")
+        continue;
 
-const cell=cells[row][col];
 
-cell.letter="";
-cell.letterElement.textContent="";
+      const cell=
+        cells[row][col];
 
-cell.element.classList.remove(
-"correct",
-"wrong"
-);
 
-}
+      cell.letter="";
 
-}
+      cell.letterElement.textContent="";
 
-localStorage.removeItem(
-"crossword-"+dateKey
-);
+      cell.element.classList.remove(
+        "correct",
+        "wrong"
+      );
 
-document.getElementById(
-"status"
-).textContent="";
+    }
+
+  }
+
+
+  localStorage.removeItem(
+    storageKey()
+  );
+
+
+  document.getElementById(
+    "status"
+  ).textContent="";
 
 }
 
 
 /* =========================================================
    REVEAL
-   ========================================================= */
+========================================================= */
 
 function revealPuzzle(){
 
-if(
-!confirm("Reveal the entire puzzle?")
-)
-return;
+  if(
+    !confirm(
+      "Reveal the entire puzzle?"
+    )
+  ){
 
-for(let row=0;row<5;row++){
+    return;
 
-for(let col=0;col<5;col++){
+  }
 
-if(solution[row][col]==="#")
-continue;
 
-const cell=cells[row][col];
+  for(let row=0;row<SIZE;row++){
 
-cell.letter=
-solution[row][col];
+    for(let col=0;col<SIZE;col++){
 
-cell.letterElement.textContent=
-solution[row][col];
+      if(solution[row][col]==="#")
+        continue;
 
-cell.element.classList.add(
-"correct"
-);
 
-}
+      const cell=
+        cells[row][col];
 
-}
 
-save();
+      cell.letter=
+        solution[row][col];
 
-document.getElementById(
-"status"
-).textContent=
-"Puzzle revealed.";
+      cell.letterElement.textContent=
+        solution[row][col];
+
+      cell.element.classList.add(
+        "correct"
+      );
+
+    }
+
+  }
+
+
+  saveProgress();
+
+
+  document.getElementById(
+    "status"
+  ).textContent=
+    "Puzzle revealed.";
 
 }
 
 
 /* =========================================================
    SAVE / LOAD
-   ========================================================= */
+========================================================= */
 
-function save(){
+function storageKey(){
 
-const data=[];
-
-for(let row=0;row<5;row++){
-
-for(let col=0;col<5;col++){
-
-if(
-cells[row][col] &&
-cells[row][col].letter
-){
-
-data.push([
-row,
-col,
-cells[row][col].letter
-]);
-
-}
-
-}
-
-}
-
-localStorage.setItem(
-"crossword-"+dateKey,
-JSON.stringify(data)
-);
+  return "crossword-"+dateKey;
 
 }
 
 
-function load(){
+function saveProgress(){
 
-try{
+  const data=[];
 
-const data=
-JSON.parse(
-localStorage.getItem(
-"crossword-"+dateKey
-)
-);
 
-if(!Array.isArray(data))
-return;
+  for(let row=0;row<SIZE;row++){
 
-data.forEach(
-([row,col,letter])=>{
+    for(let col=0;col<SIZE;col++){
 
-const cell=
-cells[row]?.[col];
+      if(
+        cells[row][col] &&
+        cells[row][col].letter
+      ){
 
-if(cell){
+        data.push([
+          row,
+          col,
+          cells[row][col].letter
+        ]);
 
-cell.letter=letter;
+      }
 
-cell.letterElement.textContent=
-letter;
+    }
+
+  }
+
+
+  localStorage.setItem(
+    storageKey(),
+    JSON.stringify(data)
+  );
 
 }
 
-}
-);
 
-}catch(e){}
+function loadProgress(){
+
+  try{
+
+    const data=
+      JSON.parse(
+        localStorage.getItem(
+          storageKey()
+        )
+      );
+
+
+    if(!Array.isArray(data))
+      return;
+
+
+    data.forEach(
+      ([row,col,letter])=>{
+
+        const cell=
+          cells[row]?.[col];
+
+
+        if(!cell)
+          return;
+
+
+        cell.letter=
+          letter;
+
+        cell.letterElement.textContent=
+          letter;
+
+      }
+    );
+
+  }catch(error){
+
+    console.warn(
+      "Could not load saved progress."
+    );
+
+  }
 
 }
 
 
 /* =========================================================
-   DAILY COUNTDOWN
-   ========================================================= */
+   MIDNIGHT COUNTDOWN
+========================================================= */
 
 function updateTimer(){
 
-const current=new Date();
+  const now=
+    new Date();
 
-const tomorrow=
-new Date(
-current.getFullYear(),
-current.getMonth(),
-current.getDate()+1
-);
 
-let seconds=
-Math.floor(
-(tomorrow-current)/1000
-);
+  const tomorrow=
+    new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()+1,
+      0,
+      0,
+      0
+    );
 
-const hours=
-Math.floor(seconds/3600);
 
-seconds%=3600;
+  let seconds=
+    Math.floor(
+      (tomorrow-now)/1000
+    );
 
-const minutes=
-Math.floor(seconds/60);
 
-seconds%=60;
+  const hours=
+    Math.floor(seconds/3600);
 
-document.getElementById(
-"timer"
-).textContent=
-`Next puzzle in ${
-String(hours).padStart(2,"0")
-}:${
-String(minutes).padStart(2,"0")
-}:${
-String(seconds).padStart(2,"0")
-}`;
+  seconds%=3600;
+
+
+  const minutes=
+    Math.floor(seconds/60);
+
+  seconds%=60;
+
+
+  document.getElementById(
+    "timer"
+  ).textContent=
+    `Next puzzle in `+
+    `${String(hours).padStart(2,"0")}:`+
+    `${String(minutes).padStart(2,"0")}:`+
+    `${String(seconds).padStart(2,"0")}`;
 
 }
 
 
 /* =========================================================
    START
-   ========================================================= */
+========================================================= */
 
 drawGrid();
+
 drawClues();
-load();
+
+loadProgress();
+
 updateTimer();
 
 setInterval(
-updateTimer,
-1000
+  updateTimer,
+  1000
 );
 
 
 /* Select first open square */
 
 outer:
-for(let r=0;r<5;r++){
+for(let row=0;row<SIZE;row++){
 
-for(let c=0;c<5;c++){
+  for(let col=0;col<SIZE;col++){
 
-if(solution[r][c]!=="#"){
+    if(solution[row][col]!=="#"){
 
-selectedRow=r;
-selectedCol=c;
+      selectedRow=row;
+      selectedCol=col;
 
-break outer;
+      break outer;
+
+    }
+
+  }
 
 }
 
-}
-
-}
 
 updateSelection();
 
