@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Mini Crossword</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: #f7f5f0;
+    color: #222;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  header {
+    text-align: center;
+    padding: 28px 16px 18px;
+    border-bottom: 1px solid #ddd8cf;
+    background: #fffdf9;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 32px;
+    letter-spacing: -0.5px;
+  }
+
+  #date {
+    margin-top: 7px;
+    color: #777;
+    font-size: 14px;
+  }
+
+  main {
+    width: min(900px, 94vw);
+    margin: 28px auto 50px;
+  }
+
+  .game {
+    display: grid;
+    grid-template-columns: minmax(280px, 430px) 1fr;
+    gap: 36px;
+    align-items: start;
+  }
+
+  .board-area {
+    width: 100%;
+  }
+
+  #grid {
+    width: min(430px, 94vw);
+    aspect-ratio: 1;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border: 3px solid #222;
+    background: #222;
+    gap: 1px;
+  }
+
+  .cell {
+    position: relative;
+    background: white;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .cell.block {
+    background: #222;
+    cursor: default;
+  }
+
+  .cell.selected {
+    background: #b9d9ff;
+  }
+
+  .cell.word-selected {
+    background: #dcecff;
+  }
+
+  .cell.correct {
+    background: #e1f3df;
+  }
+
+  .number {
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .letter {
+    position: absolute;
+    inset: 15px 0 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: clamp(25px, 7vw, 39px);
+    font-weight: 600;
+  }
+
+  .clues {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+
+  .clue-section h2 {
+    margin: 0 0 10px;
+    font-size: 19px;
+    border-bottom: 2px solid #222;
+    padding-bottom: 7px;
+  }
+
+  .clue {
+    display: flex;
+    gap: 9px;
+    padding: 8px 7px;
+    border-radius: 5px;
+    cursor: pointer;
+    line-height: 1.3;
+  }
+
+  .clue:hover {
+    background: #ebe8e1;
+  }
+
+  .clue.active {
+    background: #cfe5ff;
+  }
+
+  .clue-number {
+    font-weight: bold;
+    min-width: 20px;
+  }
+
+  .controls {
+    text-align: center;
+    margin-top: 22px;
+  }
+
+  button {
+    border: 1px solid #aaa;
+    background: white;
+    border-radius: 6px;
+    padding: 9px 15px;
+    margin: 3px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #eee;
+  }
+
+  #status {
+    min-height: 25px;
+    margin-top: 14px;
+    font-weight: bold;
+  }
+
+  #countdown {
+    margin-top: 9px;
+    color: #777;
+    font-size: 13px;
+  }
+
+  .instructions {
+    margin-top: 35px;
+    padding: 17px;
+    background: white;
+    border: 1px solid #ddd8cf;
+    border-radius: 8px;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 700px) {
+    header {
+      padding-top: 20px;
+    }
+
+    h1 {
+      font-size: 26px;
+    }
+
+    .game {
+      grid-template-columns: 1fr;
+      gap: 25px;
+    }
+
+    .clues {
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .clues {
+      grid-template-columns: 1fr;
+    }
+
+    main {
+      margin-top: 18px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Daily Mini Crossword</h1>
+  <div id="date"></div>
+</header>
+
+<main>
+
+  <div class="game">
+
+    <div class="board-area">
+      <div id="grid"></div>
+
+      <div class="controls">
+        <button onclick="checkPuzzle()">Check</button>
+        <button onclick="clearPuzzle()">Clear</button>
+        <button onclick="revealPuzzle()">Reveal</button>
+
+        <div id="status"></div>
+        <div id="countdown"></div>
+      </div>
+    </div>
+
+    <div class="clues">
+
+      <section class="clue-section">
+        <h2>Across</h2>
+        <div id="across"></div>
+      </section>
+
+      <section class="clue-section">
+        <h2>Down</h2>
+        <div id="down"></div>
+      </section>
+
+    </div>
+
+  </div>
+
+  <div class="instructions">
+    <strong>How to play:</strong>
+    Click a square to type a letter. Click the same square again
+    to switch between Across and Down. You can also use the arrow
+    keys to move around the grid. Press Backspace to erase.
+    A new crossword appears each day.
+  </div>
+
+</main>
+
+<script>
+
+/*
+  ============================================================
+  DAILY PUZZLES
+  ============================================================
+
+  # = blocked square
+
+  Every puzzle MUST:
+    - be 5 x 5
+    - have exactly 5 Across entries
+    - have exactly 5 Down entries
+    - have no entries shorter than 3 letters
+
+  The first puzzle uses this valid pattern:
+
+  . . . # #
+  . . . # #
+  . . . . .
+  # # . . .
+  # # . . .
+
+  This creates:
+    Across: 3,3,5,3,3
+    Down:   3,3,5,3,3
+*/
+
+const puzzles = [
+
+  {
+    grid: [
+      "CAT##",
+      "DOG##",
+      "APPLE",
+      "##SUN",
+      "##CAR"
+    ],
+
+    across: {
+      1: "Feline pet",
+      4: "Canine pet",
+      7: "Fruit that keeps the doctor away",
+      12: "Star in our solar system",
+      15: "Vehicle with four wheels"
+    },
+
+    down: {
+      1: "Feline pet",
+      2: "Fruit or animal?",
+      3: "A common fruit",
+      8: "Daytime star",
+      9: "Automobile"
+    }
+  },
+
+  {
+    grid: [
+      "DOG##",
+      "OWL##",
+      "HOUSE",
+      "##RED",
+      "##ICE"
+    ],
+
+    across: {
+      1: "Common household pet",
+      4: "Nocturnal bird",
+      7: "Place where you live",
+      12: "Color of a fire truck",
+      15: "Frozen water"
+    },
+
+    down: {
+      1: "Animal that barks",
+      2: "Bird that says hoot",
+      3: "A dwelling",
+      8: "A primary color",
+      9: "Solid form of water"
+    }
+  },
+
+  {
+    grid: [
+      "SUN##",
+      "SEA##",
+      "TRAIN",
+      "##MAP",
+      "##CAR"
+    ],
+
+    across: {
+      1: "Star we see by day",
+      4: "Large body of salt water",
+      7: "Runs on rails",
+      12: "Shows locations",
+      15: "Road vehicle"
+    },
+
+    down: {
+      1: "Our daytime star",
+      2: "Ocean or ___",
+      3: "Railroad vehicle",
+      8: "Something used for navigation",
+      9: "Four-wheeled vehicle"
+    }
+  },
+
+  {
+    grid: [
+      "RED##",
+      "ANT##",
+      "HOUSE",
+      "##DOG",
+      "##SUN"
+    ],
+
+    across: {
+      1: "Color of an apple",
+      4: "Tiny insect",
+      7: "Building where people live",
+      12: "Animal that barks",
+      15: "Star in the sky"
+    },
+
+    down: {
+      1: "Color associated with roses",
+      2: "Small crawling insect",
+      3: "A place to live",
+      8: "Common pet",
+      9: "Daytime star"
+    }
+  }
+
+];
+
+
+/*
+  ============================================================
+  DATE / DAILY PUZZLE
+  ============================================================
+*/
+
+function getDateKey() {
+  const now = new Date();
+
+  return [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0")
+  ].join("-");
+}
+
+function getPuzzle() {
+  const date = getDateKey();
+
+  // Number of days since a fixed starting point.
+  const start = new Date("2026-01-01T00:00:00");
+  const today = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    new Date().getDate()
+  );
+
+  const days = Math.floor(
+    (today - start) / 86400000
+  );
+
+  return puzzles[
+    ((days % puzzles.length) + puzzles.length) % puzzles.length
+  ];
+}
+
+const puzzle = getPuzzle();
+const dateKey = getDateKey();
+
+
+/*
+  ============================================================
+  GRID PROCESSING
+  ============================================================
+*/
+
+const SIZE = 5;
+
+let cells = [];
+let entries = {
+  across: [],
+  down: []
+};
+
+let currentDirection = "across";
+let selectedRow = 0;
+let selectedCol = 0;
+
+
+/*
+  Convert the puzzle into numbered crossword entries.
+*/
+
+function buildEntries() {
+
+  entries = {
+    across: [],
+    down: []
+  };
+
+  let number = 1;
+
+  for (let r = 0; r < SIZE; r++) {
+
+    for (let c = 0; c < SIZE; c++) {
+
+      if (puzzle.grid[r][c] === "#") continue;
+
+      const startsAcross =
+        (c === 0 || puzzle.grid[r][c - 1] === "#") &&
+        c + 1 < SIZE &&
+        puzzle.grid[r][c + 1] !== "#";
+
+      const startsDown =
+        (r === 0 || puzzle.grid[r - 1][c] === "#") &&
+        r + 1 < SIZE &&
+        puzzle.grid[r + 1][c] !== "#";
+
+      if (startsAcross || startsDown) {
+
+        if (startsAcross) {
+
+          let answer = "";
+          let coords = [];
+
+          let cc = c;
+
+          while (
+            cc < SIZE &&
+            puzzle.grid[r][cc] !== "#"
+          ) {
+            answer += puzzle.grid[r][cc];
+            coords.push([r, cc]);
+            cc++;
+          }
+
+          entries.across.push({
+            number,
+            answer,
+            coords
+          });
+        }
+
+        if (startsDown) {
+
+          let answer = "";
+          let coords = [];
+
+          let rr = r;
+
+          while (
+            rr < SIZE &&
+            puzzle.grid[rr][c] !== "#"
+          ) {
+            answer += puzzle.grid[rr][c];
+            coords.push([rr, c]);
+            rr++;
+          }
+
+          entries.down.push({
+            number,
+            answer,
+            coords
+          });
+        }
+
+        number++;
+      }
+    }
+  }
+}
+
+
+/*
+  ============================================================
+  LOCAL STORAGE
+  ============================================================
+*/
+
+function storageKey() {
+  return "daily-crossword-" + dateKey;
+}
+
+function loadProgress() {
+
+  try {
+    const saved = JSON.parse(
+      localStorage.getItem(storageKey())
+    );
+
+    if (saved) {
+
+      for (const item of saved) {
+
+        if (
+          cells[item.r] &&
+          cells[item.r][item.c]
+        ) {
+          cells[item.r][item.c].letter = item.letter;
+        }
+      }
+    }
+
+  } catch (e) {
+    console.log("Could not load saved progress.");
+  }
+}
+
+function saveProgress() {
+
+  const data = [];
+
+  for (let r = 0; r < SIZE; r++) {
+
+    for (let c = 0; c < SIZE; c++) {
+
+      if (
+        puzzle.grid[r][c] !== "#" &&
+        cells[r][c].letter
+      ) {
+        data.push({
+          r,
+          c,
+          letter: cells[r][c].letter
+        });
+      }
+    }
+  }
+
+  localStorage.setItem(
+    storageKey(),
+    JSON.stringify(data)
+  );
+}
+
+
+/*
+  ============================================================
+  DRAW GRID
+  ============================================================
+*/
+
+function drawGrid() {
+
+  const gridElement =
+    document.getElementById("grid");
+
+  gridElement.innerHTML = "";
+
+  cells = [];
+
+  for (let r = 0; r < SIZE; r++) {
+
+    cells[r] = [];
+
+    for (let c = 0; c < SIZE; c++) {
+
+      const div =
+        document.createElement("div");
+
+      div.className = "cell";
+
+      if (puzzle.grid[r][c] === "#") {
+
+        div.classList.add("block");
+
+        cells[r][c] = {
+          element: div,
+          letter: null
+        };
+
+        gridElement.appendChild(div);
+        continue;
+      }
+
+      const cellNumber =
+        getCellNumber(r, c);
+
+      if (cellNumber) {
+
+        const number =
+          document.createElement("div");
+
+        number.className = "number";
+        number.textContent = cellNumber;
+
+        div.appendChild(number);
+      }
+
+      const letter =
+        document.createElement("div");
+
+      letter.className = "letter";
+
+      div.appendChild(letter);
+
+      cells[r][c] = {
+        element: div,
+        letter: "",
+        letterElement: letter
+      };
+
+      div.addEventListener(
+        "click",
+        () => selectCell(r, c)
+      );
+
+      gridElement.appendChild(div);
+    }
+  }
+}
+
+function getCellNumber(row, col) {
+
+  for (const entry of entries.across) {
+
+    if (
+      entry.coords[0][0] === row &&
+      entry.coords[0][1] === col
+    ) {
+      return entry.number;
+    }
+  }
+
+  for (const entry of entries.down) {
+
+    if (
+      entry.coords[0][0] === row &&
+      entry.coords[0][1] === col
+    ) {
+      return entry.number;
+    }
+  }
+
+  return null;
+}
+
+
+/*
+  ============================================================
+  SELECTION
+  ============================================================
+*/
+
+function selectCell(row, col) {
+
+  if (puzzle.grid[row][col] === "#")
+    return;
+
+  if (
+    selectedRow === row &&
+    selectedCol === col
+  ) {
+    currentDirection =
+      currentDirection === "across"
+        ? "down"
+        : "across";
+  }
+
+  selectedRow = row;
+  selectedCol = col;
+
+  updateHighlights();
+}
+
+function getCurrentEntry() {
+
+  const list =
+    entries[currentDirection];
+
+  return list.find(entry =>
+    entry.coords.some(
+      ([r, c]) =>
+        r === selectedRow &&
+        c === selectedCol
+    )
+  );
+}
+
+function updateHighlights() {
+
+  for (let r = 0; r < SIZE; r++) {
+
+    for (let c = 0; c < SIZE; c++) {
+
+      if (!cells[r][c].element) continue;
+
+      cells[r][c].element
+        .classList.remove(
+          "selected",
+          "word-selected"
+        );
+    }
+  }
+
+  const entry = getCurrentEntry();
+
+  if (!entry) return;
+
+  for (const [r, c] of entry.coords) {
+
+    cells[r][c].element
+      .classList.add("word-selected");
+  }
+
+  cells[selectedRow][selectedCol]
+    .element
+    .classList.add("selected");
+
+  highlightClue(entry.number);
+}
+
+function highlightClue(number) {
+
+  document
+    .querySelectorAll(".clue")
+    .forEach(el => {
+      el.classList.remove("active");
+    });
+
+  const el =
+    document.querySelector(
+      `.clue[data-direction="${currentDirection}"][data-number="${number}"]`
+    );
+
+  if (el)
+    el.classList.add("active");
+}
+
+
+/*
+  ============================================================
+  CLUES
+  ============================================================
+*/
+
+function drawClues() {
+
+  drawClueList(
+    document.getElementById("across"),
+    entries.across,
+    "across"
+  );
+
+  drawClueList(
+    document.getElementById("down"),
+    entries.down,
+    "down"
+  );
+}
+
+function drawClueList(container, list, direction) {
+
+  container.innerHTML = "";
+
+  for (const entry of list) {
+
+    const div =
+      document.createElement("div");
+
+    div.className = "clue";
+
+    div.dataset.direction = direction;
+    div.dataset.number = entry.number;
+
+    const number =
+      document.createElement("span");
+
+    number.className = "clue-number";
+    number.textContent =
+      entry.number + ".";
+
+    const text =
+      document.createElement("span");
+
+    const clueText =
+      direction === "across"
+        ? puzzle.across[entry.number]
+        : puzzle.down[entry.number];
+
+    text.textContent = clueText;
+
+    div.appendChild(number);
+    div.appendChild(text);
+
+    div.addEventListener("click", () => {
+
+      currentDirection = direction;
+
+      const [r, c] = entry.coords[0];
+
+      selectedRow = r;
+      selectedCol = c;
+
+      updateHighlights();
+    });
+
+    container.appendChild(div);
+  }
+}
+
+
+/*
+  ============================================================
+  KEYBOARD
+  ============================================================
+*/
+
+document.addEventListener("keydown", event => {
+
+  if (
+    event.key.length === 1 &&
+    /^[a-zA-Z]$/.test(event.key)
+  ) {
+
+    setLetter(
+      event.key.toUpperCase()
+    );
+
+    moveForward();
+
+    event.preventDefault();
+    return;
+  }
+
+  if (event.key === "Backspace") {
+
+    clearCurrentCell();
+    event.preventDefault();
+    return;
+  }
+
+  if (event.key === "ArrowLeft") {
+
+    move(-0, -1);
+    event.preventDefault();
+    return;
+  }
+
+  if (event.key === "ArrowRight") {
+
+    move(0, 1);
+    event.preventDefault();
+    return;
+  }
+
+  if (event.key === "ArrowUp") {
+
+    move(-1, 0);
+    event.preventDefault();
+    return;
+  }
+
+  if (event.key === "ArrowDown") {
+
+    move(1, 0);
+    event.preventDefault();
+    return;
+  }
+
+  if (event.key === "Tab") {
+
+    currentDirection =
+      currentDirection === "across"
+        ? "down"
+        : "across";
+
+    updateHighlights();
+
+    event.preventDefault();
+  }
+});
+
+
+function setLetter(letter) {
+
+  const cell =
+    cells[selectedRow][selectedCol];
+
+  if (!cell || puzzle.grid[selectedRow][selectedCol] === "#")
+    return;
+
+  cell.letter = letter;
+  cell.letterElement.textContent = letter;
+
+  saveProgress();
+}
+
+
+function clearCurrentCell() {
+
+  const cell =
+    cells[selectedRow][selectedCol];
+
+  if (!cell) return;
+
+  cell.letter = "";
+  cell.letterElement.textContent = "";
+
+  saveProgress();
+}
+
+
+function moveForward() {
+
+  const entry = getCurrentEntry();
+
+  if (!entry) return;
+
+  const index =
+    entry.coords.findIndex(
+      ([r, c]) =>
+        r === selectedRow &&
+        c === selectedCol
+    );
+
+  if (
+    index >= 0 &&
+    index < entry.coords.length - 1
+  ) {
+
+    const [r, c] =
+      entry.coords[index + 1];
+
+    selectedRow = r;
+    selectedCol = c;
+
+    updateHighlights();
+  }
+}
+
+
+function move(dr, dc) {
+
+  let r = selectedRow + dr;
+  let c = selectedCol + dc;
+
+  while (
+    r >= 0 &&
+    r < SIZE &&
+    c >= 0 &&
+    c < SIZE
+  ) {
+
+    if (puzzle.grid[r][c] !== "#") {
+
+      selectedRow = r;
+      selectedCol = c;
+
+      updateHighlights();
+      return;
+    }
+
+    r += dr;
+    c += dc;
+  }
+}
+
+
+/*
+  ============================================================
+  CHECK / CLEAR / REVEAL
+  ============================================================
+*/
+
+function checkPuzzle() {
+
+  let wrong = 0;
+  let empty = 0;
+
+  for (let r = 0; r < SIZE; r++) {
+
+    for (let c = 0; c < SIZE; c++) {
+
+      if (puzzle.grid[r][c] === "#")
+        continue;
+
+      const cell =
+        cells[r][c];
+
+      cell.element.classList.remove("correct");
+
+      if (!cell.letter) {
+
+        empty++;
+        continue;
+      }
+
+      if (
+        cell.letter ===
+        puzzle.grid[r][c]
+      ) {
+
+        cell.element
+          .classList.add("correct");
+
+      } else {
+
+        wrong++;
+      }
+    }
+  }
+
+  const status =
+    document.getElementById("status");
+
+  if (wrong > 0) {
+
+    status.textContent =
+      `${wrong} letter${wrong === 1 ? "" : "s"} incorrect.`;
+
+    status.style.color = "#b3261e";
+
+  } else if (empty > 0) {
+
+    status.textContent =
+      "So far, so good!";
+
+    status.style.color = "#555";
+
+  } else {
+
+    status.textContent =
+      "🎉 Puzzle complete!";
+
+    status.style.color = "#218838";
+
+    localStorage.setItem(
+      "daily-crossword-complete-" + dateKey,
+      "true"
+    );
+  }
+}
+
+
+function clearPuzzle() {
+
+  for (let r = 0; r < SIZE; r++) {
+
+    for (let c = 0; c < SIZE; c++) {
+
+      if (puzzle.grid[r][c] === "#")
+        continue;
+
+      cells[r][c].letter = "";
+      cells[r][c].letterElement.textContent = "";
+
+      cells[r][c].element
+        .classList.remove("correct");
+    }
+  }
+
+  localStorage.removeItem(storageKey());
+
+  document.getElementById("status").textContent = "";
+
+  updateHighlights();
+}
+
+
+function revealPuzzle() {
+
+  if (
+    !confirm(
+      "Reveal the entire puzzle?"
+    )
+  ) {
+    return;
+  }
+
+  for (let r = 0; r < SIZE; r++) {
+
+    for (let c = 0; c < SIZE; c++) {
+
+      if (puzzle.grid[r][c] === "#")
+        continue;
+
+      cells[r][c].letter =
+        puzzle.grid[r][c];
+
+      cells[r][c].letterElement.textContent =
+        puzzle.grid[r][c];
+    }
+  }
+
+  saveProgress();
+
+  document.getElementById("status").textContent =
+    "Puzzle revealed.";
+}
+
+
+/*
+  ============================================================
+  COUNTDOWN
+  ============================================================
+*/
+
+function updateCountdown() {
+
+  const now = new Date();
+
+  const tomorrow =
+    new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + 1,
+      0, 0, 0
+    );
+
+  const difference =
+    tomorrow - now;
+
+  const hours =
+    Math.floor(
+      difference / 3600000
+    );
+
+  const minutes =
+    Math.floor(
+      (difference % 3600000) / 60000
+    );
+
+  const seconds =
+    Math.floor(
+      (difference % 60000) / 1000
+    );
+
+  document.getElementById("countdown")
+    .textContent =
+      `Next puzzle in ${String(hours).padStart(2, "0")}:` +
+      `${String(minutes).padStart(2, "0")}:` +
+      `${String(seconds).padStart(2, "0")}`;
+}
+
+
+/*
+  ============================================================
+  INITIALIZE
+  ============================================================
+*/
+
+function initialize() {
+
+  buildEntries();
+
+  drawGrid();
+  drawClues();
+
+  loadProgress();
+
+  // Restore letters visually.
+  for (let r = 0; r < SIZE; r++) {
+
+    for (let c = 0; c < SIZE; c++) {
+
+      const cell = cells[r][c];
+
+      if (
+        cell &&
+        cell.letterElement &&
+        cell.letter
+      ) {
+        cell.letterElement.textContent =
+          cell.letter;
+      }
+    }
+  }
+
+  document.getElementById("date")
+    .textContent =
+      new Date().toLocaleDateString(
+        undefined,
+        {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          year: "numeric"
+        }
+      );
+
+  selectCell(0, 0);
+
+  updateCountdown();
+
+  setInterval(
+    updateCountdown,
+    1000
+  );
+}
+
+initialize();
+
+</script>
+
+</body>
+</html>
