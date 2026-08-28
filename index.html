@@ -6,26 +6,33 @@
 <title>Daily Mental Health Crossword</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 :root{
   --bg:#f4f7f5;
-  --white:#fff;
-  --text:#18231d;
-  --muted:#68736d;
-  --line:#202522;
-  --green:#dcefe7;
-  --green2:#b9ddce;
-  --correct:#ddf2df;
-  --wrong:#ffdede;
+  --card:#ffffff;
+  --text:#17231d;
+  --muted:#68746d;
+  --line:#222a25;
   --accent:#39745c;
+  --highlight:#dcefe7;
+  --selected:#b9ddce;
+  --correct:#def2df;
+  --wrong:#ffdede;
 }
 
 body{
   margin:0;
   background:var(--bg);
   color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Arial,
+    sans-serif;
 }
 
 header{
@@ -41,8 +48,8 @@ h1{
 }
 
 #date{
-  margin-top:6px;
   color:var(--muted);
+  margin-top:6px;
   font-size:14px;
 }
 
@@ -52,7 +59,7 @@ main{
   padding:0 15px;
 }
 
-.game{
+.layout{
   display:grid;
   grid-template-columns:400px 1fr;
   gap:35px;
@@ -84,12 +91,12 @@ main{
   cursor:default;
 }
 
-.cell.hl{
-  background:var(--green);
+.cell.highlight{
+  background:var(--highlight);
 }
 
 .cell.selected{
-  background:var(--green2);
+  background:var(--selected);
 }
 
 .cell.correct{
@@ -112,8 +119,8 @@ main{
   position:absolute;
   inset:12px 0 0;
   display:flex;
-  align-items:center;
   justify-content:center;
+  align-items:center;
   font-size:clamp(27px,7vw,40px);
   font-weight:600;
 }
@@ -121,14 +128,13 @@ main{
 .active{
   margin-top:13px;
   min-height:48px;
+  padding:11px 13px;
   background:#fff;
   border:1px solid #d8dfda;
   border-radius:7px;
-  padding:11px 13px;
   display:flex;
   align-items:center;
   gap:9px;
-  font-weight:600;
 }
 
 .active b{
@@ -167,8 +173,8 @@ button:hover{
 
 .clues{
   display:grid;
-  grid-template-columns:1fr;
-  gap:26px;
+  grid-template-columns:1fr 1fr;
+  gap:25px;
 }
 
 h2{
@@ -188,12 +194,12 @@ h2{
 }
 
 .clue:hover,
-.clue.chosen{
-  background:var(--green);
+.clue.active{
+  background:var(--highlight);
 }
 
-.cn{
-  width:26px;
+.clue-number{
+  width:25px;
   flex:none;
   font-weight:800;
 }
@@ -209,28 +215,29 @@ h2{
   line-height:1.55;
 }
 
-.help strong{
-  color:var(--text);
-}
-
 @media(max-width:700px){
-  .game{
+
+  .layout{
     grid-template-columns:1fr;
+  }
+
+  #grid{
+    margin:auto;
   }
 
   .clues{
     grid-template-columns:1fr 1fr;
-    gap:22px;
   }
 }
 
 @media(max-width:450px){
-  .clues{
-    grid-template-columns:1fr;
-  }
 
   h1{
     font-size:25px;
+  }
+
+  .clues{
+    grid-template-columns:1fr;
   }
 }
 </style>
@@ -239,216 +246,81 @@ h2{
 <body>
 
 <header>
-<h1>Daily Mental Health Crossword</h1>
-<div id="date"></div>
+  <h1>Daily Mental Health Crossword</h1>
+  <div id="date"></div>
 </header>
 
 <main>
 
-<div class="game">
+<div class="layout">
 
 <section>
 
-<div id="grid"></div>
+  <div id="grid"></div>
 
-<div class="active">
-<b id="activeNumber"></b>
-<span id="activeClue"></span>
-</div>
+  <div class="active">
+    <b id="activeNumber"></b>
+    <span id="activeClue"></span>
+  </div>
 
-<div class="controls">
-<button onclick="checkPuzzle()">Check</button>
-<button onclick="clearPuzzle()">Clear</button>
-<button onclick="revealPuzzle()">Reveal</button>
+  <div class="controls">
+    <button id="checkBtn">Check</button>
+    <button id="clearBtn">Clear</button>
+    <button id="revealBtn">Reveal</button>
 
-<div id="status"></div>
-<div id="timer"></div>
-</div>
+    <div id="status"></div>
+    <div id="timer"></div>
+  </div>
 
 </section>
 
 <section class="clues">
 
-<div>
-<h2>Across</h2>
-<div id="across"></div>
-</div>
+  <div>
+    <h2>Across</h2>
+    <div id="across"></div>
+  </div>
 
-<div>
-<h2>Down</h2>
-<div id="down"></div>
-</div>
+  <div>
+    <h2>Down</h2>
+    <div id="down"></div>
+  </div>
 
 </section>
 
 </div>
 
 <div class="help">
-<strong>How to play:</strong>
-Click a square and type a letter.
-Click the selected square again to switch between Across and Down.
-Use the arrow keys to move.
-Press Backspace to erase.
-Your progress is saved automatically.
-A new crossword appears every day.
+  <strong>How to play:</strong>
+  Click a square and type a letter.
+  Click the selected square again to switch between Across and Down.
+  Use the arrow keys to move.
+  Backspace erases a letter.
+  Your progress is saved automatically.
+  A new crossword appears each day.
 </div>
 
 </main>
 
 <script>
 
-/*
-============================================================
-DAILY MENTAL HEALTH CROSSWORD
-============================================================
+let puzzle = null;
+let cells = [];
 
-IMPORTANT:
-There is NO runtime crossword generator in this version.
+let selectedRow = 0;
+let selectedCol = 0;
+let direction = "across";
 
-Each puzzle below has already been structurally validated.
-The date simply selects which puzzle is shown.
+const today = new Date();
 
-This prevents the "Unable to generate a valid crossword"
-error that was occurring in the previous version.
-*/
+const dateKey =
+  today.getFullYear() +
+  "-" +
+  String(today.getMonth() + 1).padStart(2, "0") +
+  "-" +
+  String(today.getDate()).padStart(2, "0");
 
-
-/* =========================================================
-   PUZZLES
-   =========================================================
-
-   Grid characters:
-
-   # = black square
-
-   Each puzzle contains:
-   - exactly 5 Across entries
-   - exactly 5 Down entries
-   - every answer is 3–5 letters
-
-   The layout is explicitly stored rather than generated.
-========================================================= */
-
-
-/*
-   NOTE:
-   These puzzles use a compact crossword layout.
-
-   The application validates every puzzle before displaying it.
-*/
-
-const PUZZLES = [
-
-  {
-    grid:[
-      "CALM#",
-      "PEACE",
-      "ANXIO",
-      "L?###",
-      "####?"
-    ]
-  }
-
-];
-
-
-/*
-============================================================
-SAFE DAILY PUZZLE SYSTEM
-============================================================
-
-Instead of relying on an unreliable random generator,
-we construct a puzzle from a small set of independently
-validated word layouts below.
-
-The first valid layout is selected using the day number.
-============================================================
-*/
-
-
-/* =========================================================
-   WORD BANK
-========================================================= */
-
-const CLUES={
-
-  ACT:"Acceptance and Commitment Therapy",
-  CBT:"Cognitive Behavioral Therapy",
-  DBT:"Dialectical Behavior Therapy",
-  EFT:"Emotion-focused therapy",
-  ERP:"Exposure and Response Prevention",
-  IFS:"Internal Family Systems",
-  IPT:"Interpersonal Therapy",
-  ECT:"Electroconvulsive Therapy",
-  TMS:"Transcranial Magnetic Stimulation",
-
-  ASD:"Autism Spectrum Disorder",
-  BPD:"Borderline Personality Disorder",
-  DID:"Dissociative Identity Disorder",
-  GAD:"Generalized Anxiety Disorder",
-  MDD:"Major Depressive Disorder",
-  OCD:"Obsessive-Compulsive Disorder",
-  SAD:"Seasonal Affective Disorder",
-  SUD:"Substance Use Disorder",
-
-  DSM:"Diagnostic and Statistical Manual",
-  MSE:"Mental Status Examination",
-  PHQ:"Patient Health Questionnaire",
-
-  ANGER:"A strong emotional response",
-  CALM:"A state of reduced agitation",
-  COPE:"To manage a difficult situation",
-  EASE:"Freedom from tension or distress",
-  FEAR:"An emotional response to perceived threat",
-  GRIEF:"The emotional response to loss",
-  HEAL:"To recover or become healthier",
-  HELP:"Support when someone is struggling",
-  HOPE:"A sense that positive change is possible",
-  MIND:"The part of a person involved in thought",
-  MOOD:"A person's emotional state",
-  PANIC:"A sudden surge of intense fear",
-  PEACE:"A state of calm or tranquility",
-  REST:"Recovery through relaxation or sleep",
-  SAFE:"Free from danger or threat",
-  SLEEP:"An important part of mental wellbeing",
-  TALK:"A common part of seeking emotional support",
-  THINK:"To use the mind to process information",
-  TRUST:"Confidence in another person or process",
-  WORRY:"Repeated thoughts about possible problems",
-
-  ABATE:"To become less intense",
-  ALLAY:"To reduce or calm a fear",
-  BRAVE:"Showing courage despite fear",
-  FOCUS:"Directed attention",
-  QUIET:"A low-stimulation state",
-  RESET:"A fresh start after stress",
-  STILL:"Calm and without agitation",
-  VALID:"Recognized as understandable",
-  AWARE:"Conscious of thoughts or feelings",
-  INNER:"Existing within the mind or self",
-  MANIA:"A period of unusually elevated mood",
-  ANGRY:"Experiencing strong displeasure",
-  EMPTY:"Feeling a lack of emotional fullness",
-  SHAME:"A painful feeling of negative self-evaluation",
-  TEARS:"Physical expression sometimes accompanying emotion",
-  FEELS:"Informal term for emotional experiences",
-  EMOTE:"To express emotion"
-
-};
-
-
-/* =========================================================
-   DATE
-========================================================= */
-
-const today=new Date();
-
-const dateKey=
-  today.getFullYear()+"-"+
-  String(today.getMonth()+1).padStart(2,"0")+"-"+
-  String(today.getDate()).padStart(2,"0");
-
-document.getElementById("date").textContent=
+document.getElementById("date").textContent =
   today.toLocaleDateString(undefined,{
     weekday:"long",
     month:"long",
@@ -458,15 +330,15 @@ document.getElementById("date").textContent=
 
 
 /* =========================================================
-   DAY NUMBER
+   DAILY INDEX
 ========================================================= */
 
-function getDayNumber(){
+function dayNumber(){
 
-  const start=
+  const start =
     new Date(2024,0,1);
 
-  const current=
+  const current =
     new Date(
       today.getFullYear(),
       today.getMonth(),
@@ -474,862 +346,169 @@ function getDayNumber(){
     );
 
   return Math.floor(
-    (current-start)/86400000
+    (current - start) / 86400000
   );
 
 }
 
 
 /* =========================================================
-   CROSSWORD LAYOUT DEFINITIONS
-=========================================================
-
-   The layouts below are standard 5x5 crossword patterns.
-
-   Instead of attempting to randomly place words, the
-   program fills a pattern using a deterministic search
-   against the mental-health vocabulary.
-
+   LOAD PUZZLES
 ========================================================= */
 
-
-/*
-   We use this large set of short mental-health terms and
-   closely related wellbeing vocabulary.
-
-   All candidates are 3–5 letters.
-*/
-
-const WORDS=[
-  "ACT",
-  "CBT",
-  "DBT",
-  "EFT",
-  "ERP",
-  "IFS",
-  "IPT",
-  "ECT",
-  "TMS",
-  "ASD",
-  "BPD",
-  "DID",
-  "GAD",
-  "MDD",
-  "OCD",
-  "SAD",
-  "SUD",
-  "DSM",
-  "MSE",
-  "PHQ",
-
-  "CALM",
-  "COPE",
-  "EASE",
-  "FEAR",
-  "HEAL",
-  "HELP",
-  "HOPE",
-  "MIND",
-  "MOOD",
-  "REST",
-  "SAFE",
-  "TALK",
-  "THINK",
-  "TRUST",
-  "WORRY",
-  "ANGER",
-  "GRIEF",
-  "PANIC",
-  "PEACE",
-  "SLEEP",
-  "SHAME",
-  "FOCUS",
-  "QUIET",
-  "RESET",
-  "STILL",
-  "VALID",
-  "AWARE",
-  "INNER",
-  "MANIA",
-  "ABATE",
-  "ALLAY",
-  "BRAVE",
-  "ANGRY",
-  "EMPTY",
-  "EMOTE",
-  "FEELS",
-  "TEARS"
-];
-
-
-/* =========================================================
-   VALIDATE WORD LIST
-========================================================= */
-
-const VALID_WORDS=
-  [...new Set(WORDS)]
-  .filter(word=>
-    /^[A-Z]+$/.test(word) &&
-    word.length>=3 &&
-    word.length<=5 &&
-    CLUES[word]
-  );
-
-
-/* =========================================================
-   GRID PATTERNS
-=========================================================
-
-   These are conventional 5x5 crossword block patterns.
-
-   Every white run must eventually be at least 3 letters.
-
-========================================================= */
-
-const PATTERNS=[
-
-[
-  ".....",
-  "..#..",
-  ".....",
-  "..#..",
-  "....."
-],
-
-[
-  ".....",
-  ".#.#.",
-  ".....",
-  ".#.#.",
-  "....."
-],
-
-[
-  "..#..",
-  ".....",
-  "#...#",
-  ".....",
-  "..#.."
-],
-
-[
-  ".....",
-  "#...#",
-  ".....",
-  "#...#",
-  "....."
-],
-
-[
-  "...##",
-  ".....",
-  ".....",
-  ".....",
-  "##..."
-]
-
-];
-
-
-/* =========================================================
-   PATTERN VALIDATION
-========================================================= */
-
-function getRuns(pattern){
-
-  const across=[];
-  const down=[];
-
-  for(let r=0;r<5;r++){
-
-    let c=0;
-
-    while(c<5){
-
-      if(pattern[r][c]==="#"){
-        c++;
-        continue;
-      }
-
-      const start=c;
-
-      while(
-        c<5 &&
-        pattern[r][c]!== "#"
-      ){
-        c++;
-      }
-
-      const len=c-start;
-
-      if(len>=3){
-
-        across.push({
-          row:r,
-          col:start,
-          length:len
-        });
-
-      }else{
-
-        /*
-          A white run of 1–2 cannot be an answer.
-        */
-
-        return null;
-
-      }
-
-    }
-
-  }
-
-
-  for(let c=0;c<5;c++){
-
-    let r=0;
-
-    while(r<5){
-
-      if(pattern[r][c]==="#"){
-        r++;
-        continue;
-      }
-
-      const start=r;
-
-      while(
-        r<5 &&
-        pattern[r][c]!== "#"
-      ){
-        r++;
-      }
-
-      const len=r-start;
-
-      if(len>=3){
-
-        down.push({
-          row:start,
-          col:c,
-          length:len
-        });
-
-      }else{
-
-        return null;
-
-      }
-
-    }
-
-  }
-
-
-  return {
-    across,
-    down
-  };
-
-}
-
-
-/* =========================================================
-   MATCHING
-========================================================= */
-
-function candidatesForPattern(
-  pattern,
-  row,
-  col,
-  length,
-  grid
-){
-
-  return VALID_WORDS.filter(word=>{
-
-    if(word.length!==length)
-      return false;
-
-    for(let i=0;i<length;i++){
-
-      const existing=
-        grid[row]?.[col+i];
-
-      if(
-        existing &&
-        existing!=="#" &&
-        existing!==word[i]
-      ){
-
-        return false;
-
-      }
-
-    }
-
-    return true;
-
-  });
-
-}
-
-
-/* =========================================================
-   PLACE WORD
-========================================================= */
-
-function putWord(
-  grid,
-  row,
-  col,
-  word
-){
-
-  const next=
-    grid.map(r=>[...r]);
-
-  for(let i=0;i<word.length;i++){
-
-    next[row][col+i]=word[i];
-
-  }
-
-  return next;
-
-}
-
-
-/* =========================================================
-   SOLVER
-========================================================= */
-
-function solvePattern(pattern){
-
-  const runs=
-    getRuns(pattern);
-
-  if(!runs)
-    return null;
-
-
-  /*
-    The number of Across and Down entries must both be 5.
-  */
-
-  if(
-    runs.across.length!==5 ||
-    runs.down.length!==5
-  ){
-
-    return null;
-
-  }
-
-
-  const allRuns=[
-    ...runs.across.map(
-      x=>({...x,type:"across"})
-    ),
-    ...runs.down.map(
-      x=>({...x,type:"down"})
-    )
-  ];
-
-
-  /*
-    Work on the most constrained entry first.
-  */
-
-  function sortRuns(grid){
-
-    return [...allRuns].sort(
-      (a,b)=>{
-
-        const ca=
-          countCandidates(a,grid);
-
-        const cb=
-          countCandidates(b,grid);
-
-        return ca-cb;
-
-      }
-    );
-
-  }
-
-
-  function countCandidates(run,grid){
-
-    let count=0;
-
-    for(const word of VALID_WORDS){
-
-      if(word.length!==run.length)
-        continue;
-
-      let okay=true;
-
-      for(let i=0;i<run.length;i++){
-
-        const r=
-          run.type==="across"
-            ?run.row
-            :run.row+i;
-
-        const c=
-          run.type==="across"
-            ?run.col+i
-            :run.col;
-
-        const value=
-          grid[r][c];
-
-        if(
-          value &&
-          value!=="#" &&
-          value!==word[i]
-        ){
-
-          okay=false;
-          break;
-
+async function loadPuzzle(){
+
+  try{
+
+    const response =
+      await fetch(
+        "puzzles.json?cache=" +
+        encodeURIComponent(dateKey),
+        {
+          cache:"no-store"
         }
-
-      }
-
-      if(okay)
-        count++;
-
-    }
-
-    return count;
-
-  }
-
-
-  function search(grid,placed){
-
-    if(
-      placed===allRuns.length
-    ){
-
-      return grid;
-
-    }
-
-
-    const remaining=
-      sortRuns(grid)
-      .filter(
-        run=>
-          !run.filled
       );
 
+    if(!response.ok){
 
-    const run=remaining[0];
+      throw new Error(
+        "Could not load puzzles.json"
+      );
 
-    if(!run)
-      return grid;
+    }
+
+    const data =
+      await response.json();
 
 
-    const candidates=
-      [];
+    if(
+      !data ||
+      !Array.isArray(data.puzzles) ||
+      !data.puzzles.length
+    ){
 
-
-    for(const word of VALID_WORDS){
-
-      if(word.length!==run.length)
-        continue;
-
-      let okay=true;
-
-      for(let i=0;i<run.length;i++){
-
-        const r=
-          run.type==="across"
-            ?run.row
-            :run.row+i;
-
-        const c=
-          run.type==="across"
-            ?run.col+i
-            :run.col;
-
-        const value=
-          grid[r][c];
-
-        if(
-          value &&
-          value!=="#" &&
-          value!==word[i]
-        ){
-
-          okay=false;
-          break;
-
-        }
-
-      }
-
-      if(okay)
-        candidates.push(word);
+      throw new Error(
+        "puzzles.json contains no puzzles"
+      );
 
     }
 
 
-    /*
-      Deterministic ordering.
-    */
-
-    candidates.sort();
+    const index =
+      Math.abs(dayNumber()) %
+      data.puzzles.length;
 
 
-    for(const word of candidates){
-
-      const next=
-        grid.map(r=>[...r]);
+    puzzle =
+      data.puzzles[index];
 
 
-      for(let i=0;i<run.length;i++){
+    validatePuzzle(puzzle);
 
-        const r=
-          run.type==="across"
-            ?run.row
-            :run.row+i;
+    initialize();
 
-        const c=
-          run.type==="across"
-            ?run.col+i
-            :run.col;
+  }catch(error){
 
-        next[r][c]=word[i];
+    console.error(error);
 
-      }
-
-
-      run.filled=true;
-
-
-      const result=
-        search(
-          next,
-          placed+1
-        );
-
-
-      run.filled=false;
-
-
-      if(result)
-        return result;
-
-    }
-
-
-    return null;
+    document.getElementById("grid").innerHTML = `
+      <div style="
+        grid-column:1/-1;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        text-align:center;
+        background:#fff;
+        padding:25px;
+        font-size:14px;
+      ">
+        Unable to load today's crossword.<br>
+        Make sure <strong>puzzles.json</strong>
+        is in the same GitHub Pages folder as
+        <strong>index.html</strong>.
+      </div>
+    `;
 
   }
 
+}
 
-  const initial=
-    pattern.map(row=>
-      row.split("").map(
-        char=>char==="#"?"#":""
-      )
+
+/* =========================================================
+   CLIENT-SIDE SAFETY VALIDATION
+========================================================= */
+
+function validatePuzzle(p){
+
+  if(
+    !p ||
+    !Array.isArray(p.grid) ||
+    p.grid.length !== 5
+  ){
+
+    throw new Error(
+      "Invalid puzzle grid"
     );
 
-
-  return search(
-    initial,
-    0
-  );
-
-}
-
-
-/* =========================================================
-   BUILD DAILY PUZZLE
-========================================================= */
-
-let solution=null;
-
-let usedPattern=-1;
-
-
-/*
-  Try each pattern in a date-based order.
-
-  There is no "Unable to generate" crash anymore.
-*/
-
-const day=
-  getDayNumber();
-
-
-for(
-  let offset=0;
-  offset<PATTERNS.length;
-  offset++
-){
-
-  const index=
-    (day+offset)%PATTERNS.length;
-
-  const pattern=
-    PATTERNS[index];
-
-  const result=
-    solvePattern(pattern);
-
-  if(result){
-
-    solution=result;
-    usedPattern=index;
-
-    break;
-
   }
 
-}
 
+  for(const row of p.grid){
 
-/*
-  If the vocabulary ever changes and one pattern becomes
-  impossible, use a simpler fallback pattern rather than
-  breaking the page.
-*/
+    if(
+      typeof row !== "string" ||
+      row.length !== 5
+    ){
 
-if(!solution){
-
-  const fallback=[
-    ".....",
-    ".....",
-    ".....",
-    ".....",
-    "....."
-  ];
-
-  /*
-    We intentionally do not throw an exception.
-    Instead, use a small known word-square search.
-  */
-
-  solution=
-    solvePattern(fallback);
-
-}
-
-
-/* =========================================================
-   FINAL SAFETY
-========================================================= */
-
-if(!solution){
-
-  /*
-    Display a friendly message rather than crashing.
-  */
-
-  document.getElementById("grid").innerHTML=
-    `<div style="
-      grid-column:1/-1;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:white;
-      text-align:center;
-      padding:20px;
-      font-size:14px;
-    ">
-      Today's crossword is being prepared.<br>
-      Please refresh the page.
-    </div>`;
-
-}else{
-
-
-/* =========================================================
-   ENTRY EXTRACTION
-========================================================= */
-
-const entries={
-  across:[],
-  down:[]
-};
-
-
-function buildEntries(){
-
-  let number=1;
-
-
-  /*
-    Across
-  */
-
-  for(let r=0;r<5;r++){
-
-    let c=0;
-
-    while(c<5){
-
-      if(solution[r][c]==="#"){
-
-        c++;
-        continue;
-
-      }
-
-
-      const start=c;
-
-
-      while(
-        c<5 &&
-        solution[r][c]!="#"
-      ){
-
-        c++;
-
-      }
-
-
-      const word=
-        solution[r]
-          .slice(start,c)
-          .join("");
-
-
-      if(word.length>=3){
-
-        entries.across.push({
-          number,
-          word,
-          coords:Array.from(
-            {length:word.length},
-            (_,i)=>[r,start+i]
-          )
-        });
-
-      }
+      throw new Error(
+        "Invalid grid row"
+      );
 
     }
 
   }
 
 
-  /*
-    Down
-  */
+  if(
+    !Array.isArray(p.across) ||
+    p.across.length !== 5
+  ){
 
-  for(let c=0;c<5;c++){
+    throw new Error(
+      "Puzzle must have five Across clues"
+    );
 
-    let r=0;
-
-    while(r<5){
-
-      if(solution[r][c]==="#"){
-
-        r++;
-        continue;
-
-      }
+  }
 
 
-      const start=r;
+  if(
+    !Array.isArray(p.down) ||
+    p.down.length !== 5
+  ){
+
+    throw new Error(
+      "Puzzle must have five Down clues"
+    );
+
+  }
 
 
-      while(
-        r<5 &&
-        solution[r][c]!="#"
-      ){
+  for(
+    const entry of [
+      ...p.across,
+      ...p.down
+    ]
+  ){
 
-        r++;
+    if(
+      typeof entry.answer !== "string" ||
+      entry.answer.length < 3 ||
+      entry.answer.length > 5
+    ){
 
-      }
-
-
-      const word=
-        Array.from(
-          {length:r-start},
-          (_,i)=>solution[start+i][c]
-        ).join("");
-
-
-      if(word.length>=3){
-
-        /*
-          Number is assigned from the starting square.
-        */
-
-        const existing=
-          entries.across.find(
-            entry=>
-              entry.coords[0][0]===start &&
-              entry.coords[0][1]===c
-          );
-
-
-        let n;
-
-
-        if(existing){
-
-          n=existing.number;
-
-        }else{
-
-          /*
-            Find the next square number.
-          */
-
-          const starts=
-            [];
-
-          for(const a of entries.across)
-            starts.push({
-              r:a.coords[0][0],
-              c:a.coords[0][1],
-              n:a.number
-            });
-
-          for(const d of entries.down)
-            starts.push({
-              r:d.coords[0][0],
-              c:d.coords[0][1],
-              n:d.number
-            });
-
-          const found=
-            starts.find(
-              x=>x.r===start&&x.c===c
-            );
-
-          if(found){
-
-            n=found.n;
-
-          }else{
-
-            n=number++;
-
-          }
-
-        }
-
-
-        entries.down.push({
-          number:n,
-          word,
-          coords:Array.from(
-            {length:word.length},
-            (_,i)=>[start+i,c]
-          )
-        });
-
-      }
+      throw new Error(
+        "Invalid answer length"
+      );
 
     }
 
@@ -1338,52 +517,37 @@ function buildEntries(){
 }
 
 
-/*
-  Better numbering:
-  derive numbers from all starting squares.
-*/
+/* =========================================================
+   STORAGE
+========================================================= */
 
-function rebuildEntries(){
+function storageKey(){
 
-  entries.across=[];
-  entries.down=[];
+  return "mental-health-crossword-" +
+    dateKey;
+
+}
 
 
-  const starts=[];
+function save(){
 
+  const data = [];
 
   for(let r=0;r<5;r++){
 
     for(let c=0;c<5;c++){
 
-      if(solution[r][c]==="#")
-        continue;
+      if(
+        cells[r] &&
+        cells[r][c] &&
+        cells[r][c].letter
+      ){
 
-
-      const acrossStart=
-        (
-          c===0 ||
-          solution[r][c-1]==="#"
-        ) &&
-        c+1<5 &&
-        solution[r][c+1]!="#";
-
-
-      const downStart=
-        (
-          r===0 ||
-          solution[r-1][c]==="#"
-        ) &&
-        r+1<5 &&
-        solution[r+1][c]!="#";
-
-
-      if(acrossStart||downStart){
-
-        starts.push({
+        data.push([
           r,
-          c
-        });
+          c,
+          cells[r][c].letter
+        ]);
 
       }
 
@@ -1391,237 +555,233 @@ function rebuildEntries(){
 
   }
 
-
-  let number=1;
-
-
-  for(const start of starts){
-
-    const r=start.r;
-    const c=start.c;
-
-
-    const acrossStart=
-      (
-        c===0 ||
-        solution[r][c-1]==="#"
-      ) &&
-      c+1<5 &&
-      solution[r][c+1]!="#";
-
-
-    const downStart=
-      (
-        r===0 ||
-        solution[r-1][c]==="#"
-      ) &&
-      r+1<5 &&
-      solution[r+1][c]!="#";
-
-
-    if(acrossStart){
-
-      let word="";
-      const coords=[];
-
-      let x=c;
-
-      while(
-        x<5 &&
-        solution[r][x]!="#"
-      ){
-
-        word+=solution[r][x];
-        coords.push([r,x]);
-        x++;
-
-      }
-
-
-      entries.across.push({
-        number,
-        word,
-        coords
-      });
-
-    }
-
-
-    if(downStart){
-
-      let word="";
-      const coords=[];
-
-      let y=r;
-
-      while(
-        y<5 &&
-        solution[y][c]!="#"
-      ){
-
-        word+=solution[y][c];
-        coords.push([y,c]);
-        y++;
-
-      }
-
-
-      entries.down.push({
-        number,
-        word,
-        coords
-      });
-
-    }
-
-
-    number++;
-
-  }
+  localStorage.setItem(
+    storageKey(),
+    JSON.stringify(data)
+  );
 
 }
 
 
-rebuildEntries();
+function load(){
+
+  try{
+
+    const data =
+      JSON.parse(
+        localStorage.getItem(
+          storageKey()
+        )
+      );
+
+    if(!Array.isArray(data))
+      return;
+
+    for(
+      const item of data
+    ){
+
+      const [r,c,letter] = item;
+
+      if(
+        cells[r] &&
+        cells[r][c] &&
+        cells[r][c].letterElement
+      ){
+
+        cells[r][c].letter =
+          letter;
+
+        cells[r][c]
+          .letterElement
+          .textContent =
+          letter;
+
+      }
+
+    }
+
+  }catch(e){
+
+    console.warn(
+      "Could not load saved progress."
+    );
+
+  }
+
+}
 
 
 /* =========================================================
-   GRID
+   FIND ENTRY
 ========================================================= */
 
-const cells=[];
+function getEntry(){
 
-const gridElement=
-  document.getElementById("grid");
+  const list =
+    direction === "across"
+      ? puzzle.across
+      : puzzle.down;
 
 
-function getNumber(r,c){
+  return list.find(
+    entry => {
 
-  for(const entry of entries.across){
+      if(
+        direction === "across"
+      ){
 
-    if(
-      entry.coords[0][0]===r &&
-      entry.coords[0][1]===c
-    ){
+        return (
+          selectedRow === entry.row &&
+          selectedCol >= entry.col &&
+          selectedCol <
+            entry.col + entry.length
+        );
 
-      return entry.number;
+      }
+
+
+      return (
+        selectedCol === entry.col &&
+        selectedRow >= entry.row &&
+        selectedRow <
+          entry.row + entry.length
+      );
 
     }
-
-  }
-
-
-  for(const entry of entries.down){
-
-    if(
-      entry.coords[0][0]===r &&
-      entry.coords[0][1]===c
-    ){
-
-      return entry.number;
-
-    }
-
-  }
-
-
-  return null;
+  );
 
 }
 
+
+/* =========================================================
+   NUMBER
+========================================================= */
+
+function cellNumber(r,c){
+
+  const all =
+    [
+      ...puzzle.across,
+      ...puzzle.down
+    ];
+
+  const entry =
+    all.find(
+      e =>
+        e.row === r &&
+        e.col === c
+    );
+
+  return entry
+    ? entry.number
+    : null;
+
+}
+
+
+/* =========================================================
+   DRAW GRID
+========================================================= */
 
 function drawGrid(){
 
-  gridElement.innerHTML="";
+  const grid =
+    document.getElementById("grid");
+
+  grid.innerHTML = "";
+
+  cells = [];
 
 
   for(let r=0;r<5;r++){
 
-    cells[r]=[];
-
+    cells[r] = [];
 
     for(let c=0;c<5;c++){
 
-      const el=
+      const cell =
         document.createElement("div");
 
-      el.className="cell";
+      cell.className = "cell";
 
 
-      if(solution[r][c]==="#"){
+      if(puzzle.grid[r][c] === "#"){
 
-        el.classList.add("block");
+        cell.classList.add("block");
 
-        cells[r][c]={
-          element:el,
+        grid.appendChild(cell);
+
+        cells[r][c] = {
+          element:cell,
           letter:""
         };
-
-        gridElement.appendChild(el);
 
         continue;
 
       }
 
 
-      const n=
-        getNumber(r,c);
+      const number =
+        cellNumber(r,c);
 
 
-      if(n){
+      if(number !== null){
 
-        const numberEl=
+        const n =
           document.createElement("span");
 
-        numberEl.className="number";
-        numberEl.textContent=n;
+        n.className = "number";
+        n.textContent = number;
 
-        el.appendChild(numberEl);
+        cell.appendChild(n);
 
       }
 
 
-      const letter=
+      const letter =
         document.createElement("span");
 
-      letter.className="letter";
+      letter.className = "letter";
 
-      el.appendChild(letter);
+      cell.appendChild(letter);
 
 
-      cells[r][c]={
-        element:el,
+      cells[r][c] = {
+        element:cell,
         letterElement:letter,
         letter:""
       };
 
 
-      el.onclick=()=>{
+      cell.addEventListener(
+        "click",
+        () => {
 
-        if(
-          selectedRow===r &&
-          selectedCol===c
-        ){
+          if(
+            selectedRow === r &&
+            selectedCol === c
+          ){
 
-          direction=
-            direction==="across"
-              ?"down"
-              :"across";
+            direction =
+              direction === "across"
+                ? "down"
+                : "across";
 
-        }else{
+          }else{
 
-          selectedRow=r;
-          selectedCol=c;
+            selectedRow = r;
+            selectedCol = c;
+
+          }
+
+          updateSelection();
 
         }
+      );
 
 
-        updateSelection();
-
-      };
-
-
-      gridElement.appendChild(el);
+      grid.appendChild(cell);
 
     }
 
@@ -1636,12 +796,12 @@ function drawGrid(){
 
 function drawClues(){
 
-  drawList(
+  drawClueList(
     "across",
     document.getElementById("across")
   );
 
-  drawList(
+  drawClueList(
     "down",
     document.getElementById("down")
   );
@@ -1649,52 +809,56 @@ function drawClues(){
 }
 
 
-function drawList(type,container){
+function drawClueList(
+  type,
+  container
+){
 
-  container.innerHTML="";
+  container.innerHTML = "";
+
+  const list =
+    type === "across"
+      ? puzzle.across
+      : puzzle.down;
 
 
-  entries[type].forEach(
-    (entry,index)=>{
+  list.forEach(
+    (entry,index) => {
 
-      const clue=
+      const item =
         document.createElement("div");
 
-      clue.className="clue";
+      item.className = "clue";
 
-
-      const definition=
-        CLUES[entry.word] ||
-        "Mental health and wellbeing term";
-
-
-      clue.innerHTML=
-        `
-        <span class="cn">
+      item.innerHTML = `
+        <span class="clue-number">
           ${entry.number}.
         </span>
         <span>
-          ${definition}
+          ${escapeHTML(entry.clue)}
         </span>
-        `;
+      `;
 
 
-      clue.onclick=()=>{
+      item.addEventListener(
+        "click",
+        () => {
 
-        direction=type;
+          direction = type;
 
-        selectedRow=
-          entry.coords[0][0];
+          selectedRow =
+            entry.row;
 
-        selectedCol=
-          entry.coords[0][1];
+          selectedCol =
+            entry.col;
 
-        updateSelection();
+          updateSelection();
 
-      };
+        }
+      );
 
 
-      container.appendChild(clue);
+      container.appendChild(item);
 
     }
   );
@@ -1703,57 +867,69 @@ function drawList(type,container){
 
 
 /* =========================================================
-   SELECTION
+   ESCAPE HTML
 ========================================================= */
 
-let selectedRow=0;
-let selectedCol=0;
-let direction="across";
+function escapeHTML(value){
 
-
-function currentEntry(){
-
-  return entries[direction].find(
-    entry=>
-      entry.coords.some(
-        ([r,c])=>
-          r===selectedRow &&
-          c===selectedCol
-      )
-  );
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 
 }
 
+
+/* =========================================================
+   SELECTION
+========================================================= */
 
 function updateSelection(){
 
   document
     .querySelectorAll(".cell")
     .forEach(
-      cell=>{
-        cell.classList.remove(
-          "hl",
+      el => {
+        el.classList.remove(
+          "highlight",
           "selected"
         );
       }
     );
 
 
-  const entry=
-    currentEntry();
+  const entry =
+    getEntry();
 
 
   if(!entry)
     return;
 
 
-  entry.coords.forEach(
-    ([r,c])=>{
-      cells[r][c]
-        .element
-        .classList.add("hl");
-    }
-  );
+  for(
+    let i=0;
+    i<entry.length;
+    i++
+  ){
+
+    const r =
+      direction === "across"
+        ? entry.row
+        : entry.row + i;
+
+    const c =
+      direction === "across"
+        ? entry.col + i
+        : entry.col;
+
+
+    cells[r][c]
+      .element
+      .classList.add("highlight");
+
+  }
 
 
   cells[selectedRow][selectedCol]
@@ -1763,160 +939,55 @@ function updateSelection(){
 
   document.getElementById(
     "activeNumber"
-  ).textContent=
-    `${entry.number}${direction==="across"?"A":"D"}`;
+  ).textContent =
+    `${entry.number}${direction === "across" ? "A" : "D"}`;
 
 
   document.getElementById(
     "activeClue"
-  ).textContent=
-    CLUES[entry.word] ||
-    "Mental health and wellbeing term";
-
-
-  document
-    .querySelectorAll(".clue")
-    .forEach(
-      clue=>
-        clue.classList.remove("chosen")
-    );
-
-
-  const index=
-    entries[direction]
-      .indexOf(entry);
-
-
-  const list=
-    document.getElementById(direction)
-      .children;
-
-
-  if(list[index])
-    list[index].classList.add("chosen");
+  ).textContent =
+    entry.clue;
 
 }
 
 
 /* =========================================================
-   KEYBOARD
-========================================================= */
-
-document.addEventListener(
-  "keydown",
-  event=>{
-
-    if(/^[a-zA-Z]$/.test(event.key)){
-
-      enterLetter(
-        event.key.toUpperCase()
-      );
-
-      moveForward();
-
-      event.preventDefault();
-
-      return;
-
-    }
-
-
-    if(event.key==="Backspace"){
-
-      backspace();
-
-      event.preventDefault();
-
-      return;
-
-    }
-
-
-    if(event.key==="Tab"){
-
-      direction=
-        direction==="across"
-          ?"down"
-          :"across";
-
-      updateSelection();
-
-      event.preventDefault();
-
-      return;
-
-    }
-
-
-    if(event.key==="ArrowLeft"){
-
-      move(0,-1);
-      event.preventDefault();
-
-    }
-
-
-    if(event.key==="ArrowRight"){
-
-      move(0,1);
-      event.preventDefault();
-
-    }
-
-
-    if(event.key==="ArrowUp"){
-
-      move(-1,0);
-      event.preventDefault();
-
-    }
-
-
-    if(event.key==="ArrowDown"){
-
-      move(1,0);
-      event.preventDefault();
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   LETTER INPUT
+   INPUT
 ========================================================= */
 
 function enterLetter(letter){
 
-  const cell=
+  const cell =
     cells[selectedRow][selectedCol];
 
 
-  if(!cell || !cell.letterElement)
+  if(
+    !cell ||
+    !cell.letterElement
+  )
     return;
 
 
-  cell.letter=letter;
+  cell.letter = letter;
 
-  cell.letterElement.textContent=
+  cell.letterElement.textContent =
     letter;
-
 
   cell.element.classList.remove(
     "correct",
     "wrong"
   );
 
+  save();
 
-  saveProgress();
+  moveForward();
 
 }
 
 
-function backspace(){
+function erase(){
 
-  const cell=
+  const cell =
     cells[selectedRow][selectedCol];
 
 
@@ -1926,10 +997,16 @@ function backspace(){
 
   if(cell.letter){
 
-    cell.letter="";
-    cell.letterElement.textContent="";
+    cell.letter = "";
 
-    saveProgress();
+    cell.letterElement.textContent = "";
+
+    cell.element.classList.remove(
+      "correct",
+      "wrong"
+    );
+
+    save();
 
     return;
 
@@ -1937,21 +1014,6 @@ function backspace(){
 
 
   moveBackward();
-
-
-  const previous=
-    cells[selectedRow][selectedCol];
-
-
-  if(previous){
-
-    previous.letter="";
-    previous.letterElement.textContent="";
-
-  }
-
-
-  saveProgress();
 
 }
 
@@ -1962,103 +1024,231 @@ function backspace(){
 
 function moveForward(){
 
-  const entry=
-    currentEntry();
+  const entry =
+    getEntry();
 
 
   if(!entry)
     return;
 
 
-  const index=
-    entry.coords.findIndex(
-      ([r,c])=>
-        r===selectedRow &&
-        c===selectedCol
-    );
+  if(direction === "across"){
 
+    if(
+      selectedCol <
+      entry.col + entry.length - 1
+    ){
 
-  if(
-    index>=0 &&
-    index<entry.coords.length-1
-  ){
+      selectedCol++;
 
-    [
-      selectedRow,
-      selectedCol
-    ]=
-      entry.coords[index+1];
+    }
 
-    updateSelection();
+  }else{
+
+    if(
+      selectedRow <
+      entry.row + entry.length - 1
+    ){
+
+      selectedRow++;
+
+    }
 
   }
+
+
+  updateSelection();
 
 }
 
 
 function moveBackward(){
 
-  const entry=
-    currentEntry();
+  const entry =
+    getEntry();
 
 
   if(!entry)
     return;
 
 
-  const index=
-    entry.coords.findIndex(
-      ([r,c])=>
-        r===selectedRow &&
-        c===selectedCol
-    );
+  if(direction === "across"){
 
+    if(
+      selectedCol > entry.col
+    ){
 
-  if(index>0){
+      selectedCol--;
 
-    [
-      selectedRow,
-      selectedCol
-    ]=
-      entry.coords[index-1];
+    }
 
-    updateSelection();
+  }else{
+
+    if(
+      selectedRow > entry.row
+    ){
+
+      selectedRow--;
+
+    }
 
   }
+
+
+  updateSelection();
 
 }
 
 
-function move(dr,dc){
+/* =========================================================
+   KEYBOARD
+========================================================= */
 
-  let r=
-    selectedRow+dr;
+document.addEventListener(
+  "keydown",
+  event => {
 
-  let c=
-    selectedCol+dc;
+    if(
+      /^[a-zA-Z]$/.test(event.key)
+    ){
 
+      enterLetter(
+        event.key.toUpperCase()
+      );
 
-  while(
-    r>=0 &&
-    r<5 &&
-    c>=0 &&
-    c<5
-  ){
-
-    if(solution[r][c]!=="#"){
-
-      selectedRow=r;
-      selectedCol=c;
-
-      updateSelection();
+      event.preventDefault();
 
       return;
 
     }
 
 
-    r+=dr;
-    c+=dc;
+    if(
+      event.key === "Backspace"
+    ){
+
+      erase();
+
+      event.preventDefault();
+
+      return;
+
+    }
+
+
+    if(
+      event.key === "Tab"
+    ){
+
+      direction =
+        direction === "across"
+          ? "down"
+          : "across";
+
+      updateSelection();
+
+      event.preventDefault();
+
+      return;
+
+    }
+
+
+    if(
+      event.key === "ArrowLeft"
+    ){
+
+      moveHorizontal(-1);
+      event.preventDefault();
+
+    }
+
+
+    if(
+      event.key === "ArrowRight"
+    ){
+
+      moveHorizontal(1);
+      event.preventDefault();
+
+    }
+
+
+    if(
+      event.key === "ArrowUp"
+    ){
+
+      moveVertical(-1);
+      event.preventDefault();
+
+    }
+
+
+    if(
+      event.key === "ArrowDown"
+    ){
+
+      moveVertical(1);
+      event.preventDefault();
+
+    }
+
+  }
+);
+
+
+function moveHorizontal(amount){
+
+  let c =
+    selectedCol + amount;
+
+
+  while(
+    c >= 0 &&
+    c < 5
+  ){
+
+    if(
+      puzzle.grid[selectedRow][c] !== "#"
+    ){
+
+      selectedCol = c;
+      direction = "across";
+      updateSelection();
+      return;
+
+    }
+
+    c += amount;
+
+  }
+
+}
+
+
+function moveVertical(amount){
+
+  let r =
+    selectedRow + amount;
+
+
+  while(
+    r >= 0 &&
+    r < 5
+  ){
+
+    if(
+      puzzle.grid[r][selectedCol] !== "#"
+    ){
+
+      selectedRow = r;
+      direction = "down";
+      updateSelection();
+      return;
+
+    }
+
+    r += amount;
 
   }
 
@@ -2069,21 +1259,23 @@ function move(dr,dc){
    CHECK
 ========================================================= */
 
-function checkPuzzle(){
+function check(){
 
-  let wrong=0;
-  let empty=0;
+  let wrong = 0;
+  let empty = 0;
 
 
   for(let r=0;r<5;r++){
 
     for(let c=0;c<5;c++){
 
-      if(solution[r][c]==="#")
+      if(
+        puzzle.grid[r][c] === "#"
+      )
         continue;
 
 
-      const cell=
+      const cell =
         cells[r][c];
 
 
@@ -2102,8 +1294,8 @@ function checkPuzzle(){
 
 
       if(
-        cell.letter===
-        solution[r][c]
+        cell.letter ===
+        puzzle.grid[r][c]
       ){
 
         cell.element.classList.add(
@@ -2125,33 +1317,36 @@ function checkPuzzle(){
   }
 
 
-  const status=
+  const status =
     document.getElementById("status");
 
 
   if(wrong){
 
-    status.textContent=
-      `${wrong} incorrect letter${wrong===1?"":"s"}.`;
+    status.textContent =
+      `${wrong} incorrect letter${wrong === 1 ? "" : "s"}.`;
 
-    status.style.color="#b3261e";
+    status.style.color =
+      "#b3261e";
 
   }else if(empty){
 
-    status.textContent=
+    status.textContent =
       "So far, so good.";
 
-    status.style.color="#555";
+    status.style.color =
+      "#555";
 
   }else{
 
-    status.textContent=
+    status.textContent =
       "🎉 Puzzle complete!";
 
-    status.style.color="#287a4b";
+    status.style.color =
+      "#287a4b";
 
     localStorage.setItem(
-      "complete-"+dateKey,
+      "complete-" + dateKey,
       "1"
     );
 
@@ -2170,16 +1365,20 @@ function clearPuzzle(){
 
     for(let c=0;c<5;c++){
 
-      if(solution[r][c]==="#")
+      if(
+        puzzle.grid[r][c] === "#"
+      )
         continue;
 
 
-      const cell=
+      const cell =
         cells[r][c];
 
 
-      cell.letter="";
-      cell.letterElement.textContent="";
+      cell.letter = "";
+
+      cell.letterElement.textContent =
+        "";
 
       cell.element.classList.remove(
         "correct",
@@ -2198,7 +1397,7 @@ function clearPuzzle(){
 
   document.getElementById(
     "status"
-  ).textContent="";
+  ).textContent = "";
 
 }
 
@@ -2207,7 +1406,7 @@ function clearPuzzle(){
    REVEAL
 ========================================================= */
 
-function revealPuzzle(){
+function reveal(){
 
   if(
     !confirm(
@@ -2224,19 +1423,21 @@ function revealPuzzle(){
 
     for(let c=0;c<5;c++){
 
-      if(solution[r][c]==="#")
+      if(
+        puzzle.grid[r][c] === "#"
+      )
         continue;
 
 
-      const cell=
+      const cell =
         cells[r][c];
 
 
-      cell.letter=
-        solution[r][c];
+      cell.letter =
+        puzzle.grid[r][c];
 
-      cell.letterElement.textContent=
-        solution[r][c];
+      cell.letterElement.textContent =
+        puzzle.grid[r][c];
 
       cell.element.classList.add(
         "correct"
@@ -2247,210 +1448,154 @@ function revealPuzzle(){
   }
 
 
-  saveProgress();
+  save();
 
 
   document.getElementById(
     "status"
-  ).textContent=
+  ).textContent =
     "Puzzle revealed.";
 
 }
 
 
 /* =========================================================
-   SAVE / LOAD
-========================================================= */
-
-function storageKey(){
-
-  return "crossword-"+dateKey;
-
-}
-
-
-function saveProgress(){
-
-  const data=[];
-
-
-  for(let r=0;r<5;r++){
-
-    for(let c=0;c<5;c++){
-
-      const cell=
-        cells[r][c];
-
-
-      if(
-        cell &&
-        cell.letter
-      ){
-
-        data.push([
-          r,
-          c,
-          cell.letter
-        ]);
-
-      }
-
-    }
-
-  }
-
-
-  localStorage.setItem(
-    storageKey(),
-    JSON.stringify(data)
-  );
-
-}
-
-
-function loadProgress(){
-
-  try{
-
-    const data=
-      JSON.parse(
-        localStorage.getItem(
-          storageKey()
-        )
-      );
-
-
-    if(!Array.isArray(data))
-      return;
-
-
-    data.forEach(
-      ([r,c,letter])=>{
-
-        const cell=
-          cells[r]?.[c];
-
-
-        if(
-          cell &&
-          cell.letterElement
-        ){
-
-          cell.letter=letter;
-
-          cell.letterElement.textContent=
-            letter;
-
-        }
-
-      }
-    );
-
-  }catch(error){
-
-    console.warn(
-      "Saved progress could not be loaded."
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   COUNTDOWN
+   TIMER
 ========================================================= */
 
 function updateTimer(){
 
-  const now=
+  const now =
     new Date();
 
 
-  const tomorrow=
+  const tomorrow =
     new Date(
       now.getFullYear(),
       now.getMonth(),
-      now.getDate()+1
+      now.getDate() + 1
     );
 
 
-  let seconds=
+  let seconds =
     Math.max(
       0,
       Math.floor(
-        (tomorrow-now)/1000
+        (tomorrow - now) / 1000
       )
     );
 
 
-  const hours=
-    Math.floor(seconds/3600);
+  const hours =
+    Math.floor(
+      seconds / 3600
+    );
 
-  seconds%=3600;
+  seconds %= 3600;
 
 
-  const minutes=
-    Math.floor(seconds/60);
+  const minutes =
+    Math.floor(
+      seconds / 60
+    );
 
-  seconds%=60;
+  seconds %= 60;
 
 
   document.getElementById(
     "timer"
-  ).textContent=
-    `Next puzzle in `+
-    `${String(hours).padStart(2,"0")}:`+
-    `${String(minutes).padStart(2,"0")}:`+
-    `${String(seconds).padStart(2,"0")}`;
+  ).textContent =
+    "Next puzzle in " +
+    String(hours).padStart(2,"0") +
+    ":" +
+    String(minutes).padStart(2,"0") +
+    ":" +
+    String(seconds).padStart(2,"0");
 
 }
 
 
 /* =========================================================
-   INITIALIZE
+   INITIALIZATION
 ========================================================= */
 
-drawGrid();
+function initialize(){
 
-drawClues();
+  drawGrid();
 
-loadProgress();
+  drawClues();
 
-updateTimer();
+  load();
 
-setInterval(
-  updateTimer,
-  1000
-);
+  updateTimer();
+
+  setInterval(
+    updateTimer,
+    1000
+  );
 
 
-/*
-  First available square.
-*/
+  /*
+    Select first playable square.
+  */
 
-outer:
-for(let r=0;r<5;r++){
+  outer:
+  for(let r=0;r<5;r++){
 
-  for(let c=0;c<5;c++){
+    for(let c=0;c<5;c++){
 
-    if(solution[r][c]!=="#"){
+      if(
+        puzzle.grid[r][c] !== "#"
+      ){
 
-      selectedRow=r;
-      selectedCol=c;
+        selectedRow = r;
+        selectedCol = c;
 
-      break outer;
+        break outer;
+
+      }
 
     }
 
   }
 
-}
 
-
-updateSelection();
+  updateSelection();
 
 }
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+document.getElementById(
+  "checkBtn"
+).addEventListener(
+  "click",
+  check
+);
+
+document.getElementById(
+  "clearBtn"
+).addEventListener(
+  "click",
+  clearPuzzle
+);
+
+document.getElementById(
+  "revealBtn"
+).addEventListener(
+  "click",
+  reveal
+);
+
+
+/* =========================================================
+   START
+========================================================= */
+
+loadPuzzle();
 
 </script>
 
