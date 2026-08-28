@@ -160,7 +160,6 @@ WORDS = [
     and answer.isalpha()
 ]
 
-
 WORD_MAP = dict(WORDS)
 
 
@@ -191,35 +190,39 @@ class Puzzle:
 # '#' is a block.
 # '.' is an open square.
 #
-# Patterns are deliberately symmetric.
+# Every usable Across and Down run must be at least 3
+# characters long.
 #
-# Every run must be >= 3 characters.
+# Every pattern below produces exactly 5 Across slots
+# and 5 Down slots.
+#
+# Pattern 1:
+#
+#   .....
+#   .....
+#   .....
+#   .....
+#   .....
+#
+# Pattern 2:
+#
+#   .....
+#   #...#
+#   .....
+#   #...#
+#   .....
+#
+# The second pattern produces 5 Across and 5 Down slots:
+# lengths are 5, 3, 5, 3, 5 in both directions.
 
 PATTERNS = [
     [
         ".....",
-        "..#..",
         ".....",
-        "..#..",
-        ".....",
-    ],
-
-    [
-        ".....",
-        ".#.#.",
-        ".....",
-        ".#.#.",
-        ".....",
-    ],
-
-    [
-        "..#..",
         ".....",
         ".....",
         ".....",
-        "..#..",
     ],
-
     [
         ".....",
         "#...#",
@@ -231,10 +234,56 @@ PATTERNS = [
 
 
 # ============================================================
+# PATTERN VALIDATION
+# ============================================================
+
+def validate_pattern(pattern: list[str]) -> bool:
+    """Return True if a pattern is valid for this generator."""
+
+    if len(pattern) != 5:
+        return False
+
+    if any(len(row) != 5 for row in pattern):
+        return False
+
+    if any(
+        cell not in {".", "#"}
+        for row in pattern
+        for cell in row
+    ):
+        return False
+
+    try:
+        slots = get_slots(pattern)
+    except ValueError:
+        return False
+
+    across = [
+        slot for slot in slots
+        if slot.direction == "across"
+    ]
+
+    down = [
+        slot for slot in slots
+        if slot.direction == "down"
+    ]
+
+    return len(across) == 5 and len(down) == 5
+
+
+# ============================================================
 # PATTERN ANALYSIS
 # ============================================================
 
 def get_slots(pattern: list[str]) -> list[Slot]:
+    """
+    Find all valid crossword slots.
+
+    A slot must:
+      - start at the beginning of a run or after a block
+      - contain at least 3 cells
+    """
+
     starts = []
 
     for r in range(5):
@@ -242,19 +291,17 @@ def get_slots(pattern: list[str]) -> list[Slot]:
             if pattern[r][c] == "#":
                 continue
 
-            across = (
-                (c == 0 or pattern[r][c - 1] == "#")
-                and c + 1 < 5
-                and pattern[r][c + 1] != "#"
+            across_start = (
+                c == 0
+                or pattern[r][c - 1] == "#"
             )
 
-            down = (
-                (r == 0 or pattern[r - 1][c] == "#")
-                and r + 1 < 5
-                and pattern[r + 1][c] != "#"
+            down_start = (
+                r == 0
+                or pattern[r - 1][c] == "#"
             )
 
-            if across or down:
+            if across_start or down_start:
                 starts.append((r, c))
 
     starts.sort()
@@ -263,48 +310,66 @@ def get_slots(pattern: list[str]) -> list[Slot]:
     number = 1
 
     for r, c in starts:
-        across = (
-            (c == 0 or pattern[r][c - 1] == "#")
-            and c + 1 < 5
-            and pattern[r][c + 1] != "#"
-        )
 
-        down = (
-            (r == 0 or pattern[r - 1][c] == "#")
-            and r + 1 < 5
-            and pattern[r + 1][c] != "#"
+        # ----------------------------------------------------
+        # Across
+        # ----------------------------------------------------
+
+        across = (
+            c == 0
+            or pattern[r][c - 1] == "#"
         )
 
         if across:
             length = 0
+
             while (
                 c + length < 5
                 and pattern[r][c + length] != "#"
             ):
                 length += 1
 
-            if length < 3:
-                raise ValueError("Invalid Across slot")
+            if length >= 3:
+                slots.append(
+                    Slot(
+                        number,
+                        "across",
+                        r,
+                        c,
+                        length,
+                    )
+                )
 
-            slots.append(
-                Slot(number, "across", r, c, length)
-            )
+        # ----------------------------------------------------
+        # Down
+        # ----------------------------------------------------
+
+        down = (
+            r == 0
+            or pattern[r - 1][c] == "#"
+        )
 
         if down:
             length = 0
+
             while (
                 r + length < 5
                 and pattern[r + length][c] != "#"
             ):
                 length += 1
 
-            if length < 3:
-                raise ValueError("Invalid Down slot")
+            if length >= 3:
+                slots.append(
+                    Slot(
+                        number,
+                        "down",
+                        r,
+                        c,
+                        length,
+                    )
+                )
 
-            slots.append(
-                Slot(number, "down", r, c, length)
-            )
-
+        # Crossword numbers increase by starting cell.
         number += 1
 
     return slots
@@ -334,6 +399,7 @@ def candidate_words(
     candidates = []
 
     for word in WORD_MAP:
+
         if len(word) != slot.length:
             continue
 
@@ -360,7 +426,10 @@ def solve(
     pattern: list[str],
     rng: random.Random,
 ):
-    slots = get_slots(pattern)
+    try:
+        slots = get_slots(pattern)
+    except ValueError:
+        return None
 
     across = [
         s for s in slots
@@ -372,12 +441,15 @@ def solve(
         if s.direction == "down"
     ]
 
+    # This generator expects exactly five Across
+    # and five Down entries.
     if len(across) != 5 or len(down) != 5:
         return None
 
     grid = [
         [
-            "#" if pattern[r][c] == "#" else "."
+            "#" if pattern[r][c] == "#"
+            else "."
             for c in range(5)
         ]
         for r in range(5)
@@ -387,9 +459,12 @@ def solve(
 
     def search():
         unfilled = [
-            slot for slot in slots
-            if slot.number.__str__() + slot.direction
-            not in assignment
+            slot
+            for slot in slots
+            if (
+                str(slot.number) + slot.direction
+                not in assignment
+            )
         ]
 
         if not unfilled:
@@ -398,15 +473,22 @@ def solve(
         best = None
         best_candidates = None
 
+        # Minimum Remaining Values heuristic.
+        # Choose the slot with the fewest candidates.
         for slot in unfilled:
-            candidates = candidate_words(slot, grid)
+
+            candidates = candidate_words(
+                slot,
+                grid,
+            )
 
             if not candidates:
                 return False
 
             if (
                 best_candidates is None
-                or len(candidates) < len(best_candidates)
+                or len(candidates)
+                < len(best_candidates)
             ):
                 best = slot
                 best_candidates = candidates
@@ -414,6 +496,7 @@ def solve(
         rng.shuffle(best_candidates)
 
         for word in best_candidates:
+
             cells = slot_cells(best)
 
             old = [
@@ -424,6 +507,7 @@ def solve(
             valid = True
 
             for i, (r, c) in enumerate(cells):
+
                 if (
                     grid[r][c] != "."
                     and grid[r][c] != word[i]
@@ -436,6 +520,7 @@ def solve(
             if not valid:
                 for (r, c), value in zip(cells, old):
                     grid[r][c] = value
+
                 continue
 
             key = str(best.number) + best.direction
@@ -454,11 +539,15 @@ def solve(
     if not search():
         return None
 
-    return Puzzle(
-        grid=grid,
-        across=[],
-        down=[],
-    ), slots, assignment
+    return (
+        Puzzle(
+            grid=grid,
+            across=[],
+            down=[],
+        ),
+        slots,
+        assignment,
+    )
 
 
 # ============================================================
@@ -469,7 +558,10 @@ def make_puzzle(
     pattern: list[str],
     rng: random.Random,
 ):
-    result = solve(pattern, rng)
+    result = solve(
+        pattern,
+        rng,
+    )
 
     if result is None:
         return None
@@ -480,6 +572,7 @@ def make_puzzle(
     down = []
 
     for slot in slots:
+
         key = str(slot.number) + slot.direction
         answer = assignment[key]
 
@@ -523,6 +616,7 @@ def validate_puzzle(puzzle: dict):
     assert len(puzzle["down"]) == 5
 
     for direction in ("across", "down"):
+
         for entry in puzzle[direction]:
 
             answer = entry["answer"]
@@ -535,65 +629,96 @@ def validate_puzzle(puzzle: dict):
             cells = []
 
             if direction == "across":
+
                 for i in range(len(answer)):
                     cells.append(
                         (
                             entry["row"],
-                            entry["col"] + i
+                            entry["col"] + i,
                         )
                     )
+
             else:
+
                 for i in range(len(answer)):
                     cells.append(
                         (
                             entry["row"] + i,
-                            entry["col"]
+                            entry["col"],
                         )
                     )
 
             for i, (r, c) in enumerate(cells):
+
                 assert 0 <= r < 5
                 assert 0 <= c < 5
                 assert grid[r][c] == answer[i]
 
+    # --------------------------------------------------------
     # Verify numbering.
+    # --------------------------------------------------------
+
     starts = {}
 
     for direction in ("across", "down"):
+
         for entry in puzzle[direction]:
+
             key = (
                 entry["row"],
-                entry["col"]
+                entry["col"],
             )
 
-            starts.setdefault(key, set()).add(
+            starts.setdefault(
+                key,
+                set(),
+            ).add(
                 entry["number"]
             )
 
     for numbers in starts.values():
         assert len(numbers) == 1
 
+    # --------------------------------------------------------
     # Verify crossing consistency.
+    # --------------------------------------------------------
+
     for r in range(5):
         for c in range(5):
+
             letters = []
 
             for direction in ("across", "down"):
+
                 for entry in puzzle[direction]:
+
                     if direction == "across":
+
                         cells = [
-                            (entry["row"], entry["col"] + i)
+                            (
+                                entry["row"],
+                                entry["col"] + i,
+                            )
                             for i in range(entry["length"])
                         ]
+
                     else:
+
                         cells = [
-                            (entry["row"] + i, entry["col"])
+                            (
+                                entry["row"] + i,
+                                entry["col"],
+                            )
                             for i in range(entry["length"])
                         ]
 
                     if (r, c) in cells:
+
                         idx = cells.index((r, c))
-                        letters.append(entry["answer"][idx])
+
+                        letters.append(
+                            entry["answer"][idx]
+                        )
 
             if letters:
                 assert len(set(letters)) == 1
@@ -602,18 +727,23 @@ def validate_puzzle(puzzle: dict):
 
 
 # ============================================================
-# GENERATION
+# CANONICAL REPRESENTATION
 # ============================================================
 
 def canonical(puzzle):
     return json.dumps(
         puzzle,
         sort_keys=True,
-        separators=(",", ":")
+        separators=(",", ":"),
     )
 
 
+# ============================================================
+# GENERATION
+# ============================================================
+
 def generate():
+
     rng = random.Random(SEED)
 
     puzzles = []
@@ -621,21 +751,63 @@ def generate():
 
     attempts = 0
 
+    # --------------------------------------------------------
+    # Validate patterns before generation.
+    # --------------------------------------------------------
+
+    valid_patterns = []
+
+    for index, pattern in enumerate(PATTERNS, start=1):
+
+        if validate_pattern(pattern):
+            valid_patterns.append(pattern)
+        else:
+            print(
+                f"Skipping invalid pattern #{index}:"
+            )
+            for row in pattern:
+                print(f"  {row}")
+
+    if not valid_patterns:
+        raise RuntimeError(
+            "No valid crossword patterns available."
+        )
+
+    print(
+        f"Using {len(valid_patterns)} valid "
+        f"crossword pattern(s)."
+    )
+
+    print(
+        f"Generating {TARGET_PUZZLES} puzzles..."
+    )
+
+    print()
+
+    # --------------------------------------------------------
+    # Generate puzzles.
+    # --------------------------------------------------------
+
     while len(puzzles) < TARGET_PUZZLES:
 
         attempts += 1
 
-        if attempts > TARGET_PUZZLES * MAX_ATTEMPTS_PER_PUZZLE:
+        if (
+            attempts
+            > TARGET_PUZZLES
+            * MAX_ATTEMPTS_PER_PUZZLE
+        ):
             raise RuntimeError(
-                f"Could only generate {len(puzzles)} "
-                f"unique puzzles after {attempts} attempts."
+                f"Could only generate "
+                f"{len(puzzles)} unique puzzles "
+                f"after {attempts} attempts."
             )
 
-        pattern = rng.choice(PATTERNS)
+        pattern = rng.choice(valid_patterns)
 
         puzzle = make_puzzle(
             pattern,
-            rng
+            rng,
         )
 
         if puzzle is None:
@@ -652,17 +824,35 @@ def generate():
         puzzles.append(puzzle)
 
         print(
-            f"Generated {len(puzzles):3}/{TARGET_PUZZLES}"
+            f"Generated "
+            f"{len(puzzles):3}/{TARGET_PUZZLES}"
         )
 
+    # --------------------------------------------------------
     # Final complete validation.
-    for index, puzzle in enumerate(puzzles, start=1):
+    # --------------------------------------------------------
+
+    print()
+    print("Running final validation...")
+
+    for index, puzzle in enumerate(
+        puzzles,
+        start=1,
+    ):
+
         try:
             validate_puzzle(puzzle)
+
         except Exception as exc:
+
             raise RuntimeError(
-                f"Puzzle {index} failed validation: {exc}"
+                f"Puzzle {index} failed validation: "
+                f"{exc}"
             ) from exc
+
+    # --------------------------------------------------------
+    # Build output.
+    # --------------------------------------------------------
 
     data = {
         "version": 1,
@@ -675,18 +865,35 @@ def generate():
         json.dumps(
             data,
             indent=2,
-            ensure_ascii=False
+            ensure_ascii=False,
         ),
-        encoding="utf-8"
+        encoding="utf-8",
     )
+
+    # --------------------------------------------------------
+    # Finished.
+    # --------------------------------------------------------
 
     print()
     print("=" * 60)
-    print(f"Generated:  {len(puzzles)} puzzles")
-    print(f"Validated:  {len(puzzles)} puzzles")
-    print(f"Output:     {OUTPUT.resolve()}")
+    print(
+        f"Generated:  {len(puzzles)} puzzles"
+    )
+    print(
+        f"Validated:  {len(puzzles)} puzzles"
+    )
+    print(
+        f"Attempts:   {attempts}"
+    )
+    print(
+        f"Output:     {OUTPUT.resolve()}"
+    )
     print("=" * 60)
 
+
+# ============================================================
+# ENTRY POINT
+# ============================================================
 
 if __name__ == "__main__":
     generate()
