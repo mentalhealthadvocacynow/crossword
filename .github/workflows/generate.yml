@@ -30,9 +30,3 @@ jobs:
           git add puzzles.json
           git diff --cached --quiet || git commit -m "Generate crossword puzzles"
           git push
-
-
-      
-        with:
-          name: puzzles
-          path: puzzles.json
