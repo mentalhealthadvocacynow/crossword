@@ -1,0 +1,30 @@
+name: Generate Crosswords
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "generate_crosswords.py"
+      - ".github/workflows/generate.yml"
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run generator
+        run: python generate_crosswords.py
+
+      - name: Upload puzzles.json
+        uses: actions/upload-artifact@v4
+        with:
+          name: puzzles
+          path: puzzles.json
