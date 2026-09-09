@@ -1,1603 +1,649 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Daily Mental Health Crossword</title>
-
-<style>
-*{
-  box-sizing:border-box;
-}
-
-:root{
-  --bg:#f4f7f5;
-  --card:#ffffff;
-  --text:#17231d;
-  --muted:#68746d;
-  --line:#222a25;
-  --accent:#39745c;
-  --highlight:#dcefe7;
-  --selected:#b9ddce;
-  --correct:#def2df;
-  --wrong:#ffdede;
-}
-
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Arial,
-    sans-serif;
-}
-
-header{
-  background:#fff;
-  border-bottom:1px solid #d9e0db;
-  text-align:center;
-  padding:24px 12px 20px;
-}
-
-h1{
-  margin:0;
-  font-size:29px;
-}
-
-#date{
-  color:var(--muted);
-  margin-top:6px;
-  font-size:14px;
-}
-
-main{
-  max-width:900px;
-  margin:28px auto 60px;
-  padding:0 15px;
-}
-
-.layout{
-  display:grid;
-  grid-template-columns:400px 1fr;
-  gap:35px;
-  align-items:start;
-}
-
-#grid{
-  width:400px;
-  max-width:94vw;
-  aspect-ratio:1;
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  grid-template-rows:repeat(5,1fr);
-  gap:1px;
-  background:var(--line);
-  border:3px solid var(--line);
-  margin:auto;
-}
-
-.cell{
-  position:relative;
-  background:#fff;
-  cursor:pointer;
-  user-select:none;
-}
-
-.cell.block{
-  background:var(--line);
-  cursor:default;
-}
-
-.cell.highlight{
-  background:var(--highlight);
-}
-
-.cell.selected{
-  background:var(--selected);
-}
-
-.cell.correct{
-  background:var(--correct);
-}
-
-.cell.wrong{
-  background:var(--wrong);
-}
-
-.number{
-  position:absolute;
-  top:3px;
-  left:4px;
-  font-size:10px;
-  font-weight:800;
-}
-
-.letter{
-  position:absolute;
-  inset:12px 0 0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-size:clamp(27px,7vw,40px);
-  font-weight:600;
-}
-
-.active{
-  margin-top:13px;
-  min-height:48px;
-  padding:11px 13px;
-  background:#fff;
-  border:1px solid #d8dfda;
-  border-radius:7px;
-  display:flex;
-  align-items:center;
-  gap:9px;
-}
-
-.active b{
-  color:var(--accent);
-}
-
-.controls{
-  text-align:center;
-  margin-top:12px;
-}
-
-button{
-  border:1px solid #aab3ad;
-  background:#fff;
-  border-radius:7px;
-  padding:9px 14px;
-  margin:3px;
-  font-weight:600;
-  cursor:pointer;
-}
-
-button:hover{
-  background:#edf1ee;
-}
-
-#status{
-  min-height:23px;
-  margin-top:8px;
-  font-weight:700;
-}
-
-#timer{
-  color:var(--muted);
-  font-size:13px;
-}
-
-.clues{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:25px;
-}
-
-h2{
-  font-size:19px;
-  border-bottom:2px solid var(--line);
-  margin:0 0 8px;
-  padding-bottom:6px;
-}
-
-.clue{
-  display:flex;
-  gap:8px;
-  padding:8px 7px;
-  border-radius:6px;
-  cursor:pointer;
-  line-height:1.35;
-}
-
-.clue:hover,
-.clue.active{
-  background:var(--highlight);
-}
-
-.clue-number{
-  width:25px;
-  flex:none;
-  font-weight:800;
-}
-
-.help{
-  margin-top:30px;
-  background:#fff;
-  border:1px solid #d8dfda;
-  border-radius:8px;
-  padding:16px;
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.55;
-}
-
-@media(max-width:700px){
-
-  .layout{
-    grid-template-columns:1fr;
-  }
-
-  #grid{
-    margin:auto;
-  }
-
-  .clues{
-    grid-template-columns:1fr 1fr;
-  }
-}
-
-@media(max-width:450px){
-
-  h1{
-    font-size:25px;
-  }
-
-  .clues{
-    grid-template-columns:1fr;
-  }
-}
-</style>
+<script>window["__codeletBootstrap__"]=JSON.parse('{"A":"A","B":"20260907-05-0068bad","C":{"Abril Fatface":"YACgEZbkUVE,0","Alfa Slab One":"YACgEYS9sJU,0","Anton":"YACgEcYqQ-A,0","Archivo":"YAHO2-t-jNE,0","Arial":"YAGyDvJ_4Ts,0","Bebas Neue":"YACgESME5ew,0","Bricolage Grotesque":"YAFyMcdwzpc,0","Canva Sans":"YAFLd8sKbwc,2","Caveat":"YALBs2ploWQ,0","Comic Sans MS":"YAHO2VMiyZo,0","Cormorant Garamond":"YAFdJhX-538,0","Courier New":"YAGzXiGs0_8,0","DM Sans":"YAD1aU3sLnI,0","DM Serif Display":"YAD1aYG82rc,0","Forum":"YACgEcnnqB4,0","Fraunces":"YAEul-FRQw4,0","Georgia":"YAGzXkO0pEM,0","Helvetica Neue":"YAFcf6CtJfI,0","Impact":"YAFcfnjI7Vk,0","Inter":"YAFdJvSyp_k,3","Iowan Old Style":"YAGNIFa8j9o,0","Jacques Francois":"YAHO2a5g66Q,0","JetBrains Mono":"YAFdJksXcAk,0","Libre Baskerville":"YACgEUFdPdA,0","Manrope":"YAHO2b2feC4,0","Merriweather":"YACgEXvHxxs,0","Montserrat":"YADLjI9qxTA,0","Nunito":"YACgEX8C5Gg,0","Oleo Script":"YACgEQQ14jI,0","Phantom Sans":"YAHO2E8Pb88,0","Playfair Display":"YACgEYmuCJE,0","Poppins":"YAFdJjbTu24,1","Press Start 2P":"YAFyGr-8pmQ,0","Quicksand":"YADWjpfPmdk,0","Raleway":"YACgEVg3xZg,0","Segoe UI":"YAHNdRD1Klw,0","Source Sans 3":"YAG4lO1Mj10,0","Spectral":"YAHO2rVUHIM,0","Times New Roman":"YAGzXW3gftg,0","Times":"YAGzXW3gftg,0","Ubuntu":"YACgERDU--Q,0","Work Sans":"YAGXhLOKv44,0","Yellowtail":"YACgEYG4kG4,0","ui-monospace":"YADlN8CFZ8Q,0","ui-sans-serif":"YACkoN-xg4g,0"}}');</script>
+<script src="/_sdk/9e99ecf74af2a081.telemetry_sdk.js" integrity="sha512-tZ7fmfTx2KpCLjXQnEuL9azQ4A5+7+xumsx6r/WYVD0zCP/8LP8hDeCypMQesmP+WyAew4g7l5Ah23Bjd6yoVg=="></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Mindful Crossword</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.577.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&amp;family=Libre+Franklin:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #23423a;
+      --sage: #b9cbb7;
+      --eucalyptus: #6e9785;
+      --cream: #fffaf0;
+      --sky: #dbeef0;
+      --sun: #f4c96b;
+      --leaf: #527663;
+      --coral: #d8765f;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: "Libre Franklin", sans-serif; color: var(--ink); }
+    .heading-font { font-family: "Fraunces", serif; }
+    .nature-shell { min-height: calc(100 * min(var(--vh, 1vh), 1vh)); overflow-x: hidden; position: relative; }
+    .sun-orb { position:absolute; width:26rem; height:26rem; border-radius:9999px; background:rgba(244,201,107,.28); filter:blur(12px); top:-14rem; right:-8rem; pointer-events:none; }
+    .leaf { position:absolute; opacity:.24; color:var(--leaf); pointer-events:none; }
+    .leaf-one { left:2%; top:13rem; transform:rotate(-25deg); }
+    .leaf-two { right:3%; bottom:3rem; transform:rotate(35deg); }
+    .game-grid { display:grid; gap:3px; width:min(100%, 480px); aspect-ratio:1; grid-template-columns:repeat(var(--grid-size), minmax(0,1fr)); background:#a8bfae; border:7px solid #fefaf0; box-shadow:0 18px 50px rgba(38,73,60,.16); border-radius:18px; overflow:hidden; }
+    .cell { position:relative; min-width:0; border:0; background:transparent; padding:0; }
+    .cell.fill { background:#fffdf8; color:var(--ink); cursor:pointer; font-weight:700; font-size:clamp(.78rem,2.7vw,1.25rem); transition:background .18s, transform .18s, box-shadow .18s; }
+    .cell.fill:hover { background:#f1f7f0; }
+    .cell.active-word { background:#e3f0e5; }
+    .cell.crossing { background:#cce4e4; }
+    .cell.selected { background:#f8d57d; box-shadow:inset 0 0 0 3px #315a4a; z-index:2; }
+    .cell.incorrect { box-shadow:inset 0 0 0 3px var(--coral); }
+    .cell-number { position:absolute; top:3px; left:4px; font-size:clamp(.42rem,1.3vw,.62rem); font-weight:700; line-height:1; color:#557466; pointer-events:none; z-index:1; }
+    .cell input {
+      width: 100%; height: 100%;
+      border: none; background: transparent;
+      text-align: center;
+      font-weight: 700;
+      font-size: clamp(.78rem, 2.7vw, 1.25rem);
+      color: var(--ink);
+      padding: 0;
+      text-transform: uppercase;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+    .cell input:focus { outline: none; }
+    .cell input::selection { background: transparent; color: var(--ink); }
+    .cell input::-webkit-input-placeholder { color: transparent; }
+    .cell input::-moz-placeholder { color: transparent; }
+    .cell input:-ms-input-placeholder { color: transparent; }
+    .cell input:-moz-input-placeholder { color: transparent; }
+    .clue-item { width:100%; display:flex; gap:.55rem; text-align:left; border-radius:12px; padding:.65rem .75rem; transition:background .18s, color .18s; }
+    .clue-item:hover, .clue-item:focus-visible { background:#edf5ed; }
+    .clue-item.active { background:#d8ebe0; color:#173b30; font-weight:600; }
+    .clue-number { color:#678c78; font-weight:700; min-width:1.35rem; }
+    .clue-length { color:#557466; font-size:.78rem; font-weight:700; white-space:nowrap; }
+    .soft-card { box-shadow:0 14px 35px rgba(45,80,63,.10); }
+    .focus-ring:focus-visible, .cell:focus-visible { outline:3px solid #315a4a; outline-offset:3px; }
+    .progress-fill { transition:width .35s ease; }
+    .toast { opacity:0; transform:translateY(10px); pointer-events:none; transition:opacity .2s,transform .2s; }
+    .toast.show { opacity:1; transform:translateY(0); }
+    @keyframes drift { 0%,100% { transform:translateY(0) rotate(-25deg); } 50% { transform:translateY(-9px) rotate(-20deg); } }
+    .leaf-one { animation:drift 7s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) {
+      *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important; }
+    }
+  </style>
+  <script src="/_sdk/fbe2ebfd64647c54.data_sdk.js" type="text/javascript" integrity="sha512-vkTX6CfvpHc3WbjK+tFJCaDuw4ERA4aEV/e5/7+MMJPMTF4RJYCI6CAwJBT/gtDW+dba4uLSsPUgDjVDHWtgUQ=="></script>
+  <script src="/_sdk/fcb6dc01f91829ac.resizing_sdk.js" type="text/javascript" integrity="sha512-YK8JfnN705qaEaVhiL7pcVB2Rs/BbdX5yxV55Az8zT/1JanyEWTw9HqCF915m9iV1YEaoil8qsjJz03l1Kb0Ug=="></script>
 </head>
+<body data-template-id="__page-root" class="nature-shell w-full" style="background: linear-gradient(135deg, rgb(237, 244, 233), rgb(230, 241, 237), rgb(255, 248, 231));">
+  <div class="sun-orb"></div>
+  <i data-lucide="sprout" class="leaf leaf-one" style="width:110px;height:110px"></i>
+  <i data-lucide="leaf" class="leaf leaf-two" style="width:140px;height:140px"></i>
 
-<body>
+  <header class="relative z-10 w-full px-4 pt-6 sm:px-7 sm:pt-8">
+   <div data-template-id="header-panel" class="canva-header mx-auto flex max-w-6xl flex-col gap-5 rounded-[28px] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8" style="background: rgba(255, 253, 247, 0.84);">
+    <div>
+     <p data-template-id="eyebrow-text" class="canva-text mb-1 text-sm font-bold uppercase tracking-[.16em]" style="color: rgb(110, 151, 133); font-weight: 700; font-style: normal; font-size: 12px; letter-spacing: 0.08rem;">A small daily pause</p>
+     <h1 data-template-id="page-title" class="canva-text heading-font" style="color: rgb(35, 66, 58); font-weight: 700; font-style: normal; font-size: 32px;">Daily Mindful Crossword</h1>
+     <p id="daily-date" class="mt-1 text-sm font-semibold text-[#557466]" aria-live="polite"></p>
+    </div>
+    <div class="flex items-center gap-3">
+     <div data-template-id="streak-panel" class="canva-panel rounded-2xl px-4 py-3 text-center" style="background: rgb(227, 240, 229);">
+      <p data-template-id="streak-label" class="canva-text text-xs font-bold uppercase tracking-wider" style="color: rgb(82, 118, 99); font-weight: 700; font-style: normal; font-size: 11px;">Gentle streak</p>
+      <p id="streak-value" class="heading-font mt-0.5 text-xl font-bold" aria-live="polite">—</p>
+     </div>
+     <div data-template-id="today-panel" class="canva-panel rounded-2xl px-4 py-3 text-center" style="background: rgb(255, 243, 207);">
+      <p id="today-status" class="text-sm font-bold" aria-live="polite">Ready to begin</p>
+     </div>
+    </div>
+   </div>
+  </header>
 
-<header>
-  <h1>Daily Mental Health Crossword</h1>
-  <div id="date"></div>
-</header>
+  <main class="relative z-10 mx-auto w-full max-w-6xl px-4 pb-10 pt-5 sm:px-7">
+   <section data-template-id="intro-panel" class="canva-banner soft-card rounded-[28px] p-5 sm:p-7" style="background: rgb(255, 253, 248);">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+     <div>
+      <h2 data-template-id="intro-title" class="canva-text heading-font" style="color: rgb(35, 66, 58); font-weight: 700; font-style: normal; font-size: 24px;">Take it one square at a time.</h2>
+      <p data-template-id="intro-copy" class="canva-text mt-2 max-w-2xl leading-relaxed" style="color: rgb(66, 101, 87); font-weight: 400; font-style: normal; font-size: 16px; line-height: 1.55;">Today's clues are little reminders of the things that can help us feel more present, supported, and at ease.</p>
+     </div>
+     <button id="instructions-toggle" data-template-id="instructions-button" type="button" class="canva-button focus-ring inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-5 py-3 font-bold" style="background: rgb(110, 151, 133); color: rgb(255, 255, 255); font-weight: 700;">
+      <i data-lucide="circle-help" style="width:18px;height:18px"></i>
+      <span data-template-id="instructions-button-label" class="canva-text" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 16px;">How to play</span>
+     </button>
+    </div>
+    <div id="instructions-panel" class="hidden pt-5" aria-hidden="true">
+     <div data-template-id="instructions-panel-style" class="canva-panel rounded-2xl p-4" style="background: rgb(238, 246, 239);">
+      <h3 data-template-id="instructions-title" class="canva-text font-bold" style="color: rgb(35, 66, 58); font-weight: 700; font-style: normal; font-size: 17px;">A calm way to play</h3>
+      <ul class="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed">
+       <li data-template-id="instruction-one" class="canva-text" style="color: rgb(66, 101, 87); font-weight: 400; font-style: normal; font-size: 14px;">Click a square to type, then type your answer. Click again to switch direction at a crossing.</li>
+       <li data-template-id="instruction-two" class="canva-text" style="color: rgb(66, 101, 87); font-weight: 400; font-style: normal; font-size: 14px;">Use arrow keys to move, Backspace to delete, and Enter to change direction.</li>
+       <li data-template-id="instruction-three" class="canva-text" style="color: rgb(66, 101, 87); font-weight: 400; font-style: normal; font-size: 14px;">Checking gives a gentle nudge. Revealing is always available when you need a hand.</li>
+      </ul>
+     </div>
+    </div>
+   </section>
 
-<main>
-
-<div class="layout">
-
-<section>
-
-  <div id="grid"></div>
-
-  <div class="active">
-    <b id="activeNumber"></b>
-    <span id="activeClue"></span>
-  </div>
-
-  <div class="controls">
-    <button id="checkBtn">Check</button>
-    <button id="clearBtn">Clear</button>
-    <button id="revealBtn">Reveal</button>
-
-    <div id="status"></div>
-    <div id="timer"></div>
-  </div>
-
-</section>
-
-<section class="clues">
-
-  <div>
-    <h2>Across</h2>
-    <div id="across"></div>
-  </div>
-
-  <div>
-    <h2>Down</h2>
-    <div id="down"></div>
-  </div>
-
-</section>
-
-</div>
-
-<div class="help">
-  <strong>How to play:</strong>
-  Click a square and type a letter.
-  Click the selected square again to switch between Across and Down.
-  Use the arrow keys to move.
-  Backspace erases a letter.
-  Your progress is saved automatically.
-  A new crossword appears each day.
-</div>
-
-</main>
-
-<script>
-
-let puzzle = null;
-let cells = [];
-
-let selectedRow = 0;
-let selectedCol = 0;
-let direction = "across";
-
-const today = new Date();
-
-const dateKey =
-  today.getFullYear() +
-  "-" +
-  String(today.getMonth() + 1).padStart(2, "0") +
-  "-" +
-  String(today.getDate()).padStart(2, "0");
-
-document.getElementById("date").textContent =
-  today.toLocaleDateString(undefined,{
-    weekday:"long",
-    month:"long",
-    day:"numeric",
-    year:"numeric"
-  });
-
-
-/* =========================================================
-   DAILY INDEX
-========================================================= */
-
-function dayNumber(){
-
-  const start =
-    new Date(2024,0,1);
-
-  const current =
-    new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate()
-    );
-
-  return Math.floor(
-    (current - start) / 86400000
-  );
-
-}
-
-
-/* =========================================================
-   LOAD PUZZLES
-========================================================= */
-
-async function loadPuzzle(){
-
-  try{
-
-    const response =
-      await fetch(
-        "puzzles.json?cache=" +
-        encodeURIComponent(dateKey),
-        {
-          cache:"no-store"
-        }
-      );
-
-    if(!response.ok){
-
-      throw new Error(
-        "Could not load puzzles.json"
-      );
-
-    }
-
-    const data =
-      await response.json();
-
-
-    if(
-      !data ||
-      !Array.isArray(data.puzzles) ||
-      !data.puzzles.length
-    ){
-
-      throw new Error(
-        "puzzles.json contains no puzzles"
-      );
-
-    }
-
-
-    const index =
-      Math.abs(dayNumber()) %
-      data.puzzles.length;
-
-
-    puzzle =
-      data.puzzles[index];
-
-
-    validatePuzzle(puzzle);
-
-    initialize();
-
-  }catch(error){
-
-    console.error(error);
-
-    document.getElementById("grid").innerHTML = `
-      <div style="
-        grid-column:1/-1;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        text-align:center;
-        background:#fff;
-        padding:25px;
-        font-size:14px;
-      ">
-        Unable to load today's crossword.<br>
-        Make sure <strong>puzzles.json</strong>
-        is in the same GitHub Pages folder as
-        <strong>index.html</strong>.
+   <section class="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(290px,.8fr)]">
+    <section data-template-id="puzzle-panel" class="canva-panel soft-card rounded-[28px] p-4 sm:p-7" aria-label="Crossword puzzle" style="background: rgb(251, 250, 243);">
+     <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
+      <div>
+       <p id="active-direction" class="text-xs font-bold uppercase tracking-[.16em] text-[#658675]">Across</p>
+       <h2 id="active-clue" class="heading-font mt-1 text-xl font-bold sm:text-2xl" aria-live="polite"></h2>
       </div>
-    `;
+      <div class="min-w-[148px]">
+       <div class="flex items-center justify-between text-xs font-bold text-[#557466]">
+        <span data-template-id="progress-label" class="canva-text" style="color: rgb(85, 116, 102); font-weight: 700; font-style: normal; font-size: 12px;">Your progress</span>
+        <span id="progress-text" aria-live="polite">0%</span>
+       </div>
+       <div class="mt-2 h-2 overflow-hidden rounded-full bg-[#dce9de]">
+        <div id="progress-fill" class="progress-fill h-full rounded-full bg-[#6e9785]" style="width:0%"></div>
+       </div>
+      </div>
+     </div>
+     <div class="flex justify-center">
+      <div id="crossword-grid" class="game-grid" role="grid" aria-label="Daily mindful crossword"></div>
+     </div>
+     <div class="mt-5 flex flex-wrap justify-center gap-2" aria-label="Puzzle controls">
+      <button id="across-choice" data-template-id="across-choice" type="button" class="canva-button focus-ring rounded-full px-4 py-2 text-sm font-bold" style="background: rgb(220, 238, 224); color: rgb(35, 66, 58); font-weight: 700; font-style: normal; font-size: 16px;">Across</button>
+      <button id="down-choice" data-template-id="down-choice" type="button" class="canva-button focus-ring rounded-full px-4 py-2 text-sm font-bold" style="background: rgb(219, 238, 240); color: rgb(35, 66, 58); font-weight: 700; font-style: normal; font-size: 16px;">Down</button>
+      <button id="check-letter" data-template-id="check-letter-button" type="button" class="canva-button focus-ring inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold" style="background: rgb(230, 241, 237); color: rgb(35, 66, 58); font-weight: 700;">
+        <i data-lucide="scan-line" style="width:16px;height:16px"></i>
+        <span data-template-id="check-letter-button-label" class="canva-text" style="color: rgb(35, 66, 58); font-weight: 700; font-style: normal; font-size: 16px;">Check letter</span>
+      </button>
+      <button id="check-word" data-template-id="check-word-button" type="button" class="canva-button focus-ring inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold" style="background: rgb(230, 241, 237); color: rgb(35, 66, 58); font-weight: 700;">
+        <i data-lucide="badge-check" style="width:16px;height:16px"></i>
+        <span data-template-id="check-word-button-label" class="canva-text" style="color: rgb(35, 66, 58); font-weight: 700; font-style: normal; font-size: 16px;">Check word</span>
+      </button>
+     </div>
+    </section>
 
-  }
+    <aside class="space-y-5" aria-label="Crossword clues and actions">
+     <section data-template-id="clues-panel" class="canva-panel soft-card rounded-[28px] p-5" style="background: rgb(255, 253, 248);">
+      <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
+       <div>
+        <h2 data-template-id="across-heading" class="canva-text heading-font" style="color: rgb(35, 66, 58); font-weight: 700; font-style: normal; font-size: 24px;">Across</h2>
+        <div id="across-clues" class="mt-3 space-y-1"></div>
+       </div>
+       <div>
+        <h2 data-template-id="down-heading" class="canva-text heading-font" style="color: rgb(35, 66, 58); font-weight: 700; font-style: normal; font-size: 24px;">Down</h2>
+        <div id="down-clues" class="mt-3 space-y-1"></div>
+       </div>
+      </div>
+     </section>
 
-}
+     <section data-template-id="actions-panel" class="canva-panel soft-card rounded-[28px] p-5" style="background: rgb(239, 246, 239);">
+      <h2 data-template-id="careful-actions-title" class="canva-text heading-font" style="color: rgb(35, 66, 58); font-weight: 700; font-style: normal; font-size: 24px;">A little help, if you need it</h2>
+      <p data-template-id="careful-actions-copy" class="canva-text mt-1 text-sm leading-relaxed" style="color: rgb(66, 101, 87); font-weight: 400; font-style: normal; font-size: 14px; line-height: 1.5;">There is no rush. Use these whenever they feel useful.</p>
+      <div class="mt-4 grid grid-cols-2 gap-2">
+       <button id="reveal-letter" data-template-id="reveal-letter-button" type="button" class="canva-button focus-ring rounded-xl px-3 py-2.5 text-sm font-bold" style="background: rgb(245, 223, 158); color: rgb(92, 71, 28); font-weight: 700; font-style: normal; font-size: 16px;">Reveal letter</button>
+       <button id="reveal-word" data-template-id="reveal-word-button" type="button" class="canva-button focus-ring rounded-xl px-3 py-2.5 text-sm font-bold" style="background: rgb(245, 223, 158); color: rgb(92, 71, 28); font-weight: 700; font-style: normal; font-size: 16px;">Reveal word</button>
+       <button id="reset-puzzle" data-template-id="reset-button" type="button" class="canva-button focus-ring col-span-2 rounded-xl px-3 py-2.5 text-sm font-bold" style="background: rgb(255, 255, 255); color: rgb(66, 101, 87); font-weight: 700; font-style: normal; font-size: 16px;">Reset today's puzzle</button>
+      </div>
+      <div id="confirm-panel" class="hidden mt-4 rounded-xl border border-[#e9c77a] bg-[#fff6dc] p-3">
+       <p data-template-id="confirm-copy" class="canva-text text-sm font-semibold" style="color: rgb(92, 71, 28); font-weight: 600; font-style: normal; font-size: 14px;">Would you like to continue with this action?</p>
+       <div class="mt-3 flex gap-2">
+        <button id="confirm-action" data-template-id="confirm-button" type="button" class="canva-button focus-ring rounded-lg px-3 py-2 text-sm font-bold" style="background: rgb(201, 146, 38); color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 16px;">Yes, continue</button>
+        <button id="cancel-action" data-template-id="cancel-button" type="button" class="canva-button focus-ring rounded-lg px-3 py-2 text-sm font-bold" style="background: rgb(255, 255, 255); color: rgb(66, 101, 87); font-weight: 700; font-style: normal; font-size: 16px;">Not now</button>
+       </div>
+      </div>
+     </section>
+    </aside>
+   </section>
 
+   <section id="completion-panel" class="hidden mt-5" aria-live="polite">
+    <div data-template-id="completion-panel-style" class="canva-banner soft-card rounded-[28px] p-6 text-center" style="background: linear-gradient(135deg, rgb(255, 243, 207), rgb(228, 241, 228));">
+     <i data-lucide="sun" class="mx-auto text-[#c99226]" style="width:38px;height:38px"></i>
+     <h2 data-template-id="completion-title" class="canva-text heading-font mt-3" style="color: rgb(35, 66, 58); font-weight: 700; font-style: normal; font-size: 24px;">You made space for a pause.</h2>
+     <p data-template-id="completion-copy" class="canva-text mx-auto mt-2 max-w-xl leading-relaxed" style="color: rgb(66, 101, 87); font-weight: 400; font-style: normal; font-size: 16px; line-height: 1.55;">Lovely work. A few quiet minutes of focus can be a meaningful part of your day. Come back tomorrow for a fresh gentle challenge.</p>
+    </div>
+   </section>
+  </main>
 
-/* =========================================================
-   CLIENT-SIDE SAFETY VALIDATION
-========================================================= */
+  <div id="toast" class="toast fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#23423a] px-5 py-3 text-sm font-bold text-white shadow-xl" role="status" aria-live="polite"></div>
 
-function validatePuzzle(p){
+  <script src="/_sdk/92570d8e491862b9.editing_sdk.js" integrity="sha512-FgTgBgZOGUl1XBrojWdmYvV2Ka+jYLWeeIrMhp1Q1xMV3FJfF+VJFjO6hw+EDGnXYa+zMZXNIP5UYLxGsdfP6g=="></script>
 
-  if(
-    !p ||
-    !Array.isArray(p.grid) ||
-    p.grid.length !== 5
-  ){
+  <script>
+    (() => {
+      const WORDS = [
+        ["CALM", "A settled, peaceful feeling"],
+        ["REST", "A gentle pause that helps you recharge"],
+        ["HOPE", "A small light that looks ahead"],
+        ["BREATHE", "To take a slow, steady inhale and exhale"],
+        ["GROUNDING", "A practice that brings attention to the present"],
+        ["KINDNESS", "Warm care for yourself or another"],
+        ["GROWTH", "A gradual process of learning and becoming"],
+        ["BALANCE", "A steady mix of needs, energy, and time"],
+        ["NATURE", "The living world outdoors"],
+        ["CONNECTION", "A sense of belonging with others"],
+        ["PAUSE", "A short moment to stop and notice"],
+        ["EASE", "A feeling of comfort and less strain"],
+        ["NOTICE", "To gently pay attention"],
+        ["SUPPORT", "Helpful care offered by people around you"],
+        ["WELCOME", "To receive something with warmth"],
+        ["PRESENT", "Here with this moment"],
+        ["SUNSHINE", "Warm light from the sky"],
+        ["LISTEN", "To offer someone your full attention"],
+        ["SOFTEN", "To become a little less tense"],
+        ["BLOOM", "To open gradually, like a flower"]
+      ];
+      const SIZE = 15;
+      const localDate = new Date();
+      const dateKey = [localDate.getFullYear(), String(localDate.getMonth()+1).padStart(2,"0"), String(localDate.getDate()).padStart(2,"0")].join("-");
+      const storageKey = "mindful-crossword-" + dateKey;
+      let puzzle, selectedCell, direction = "across", pendingAction = null, state = { letters:{}, completed:false };
 
-    throw new Error(
-      "Invalid puzzle grid"
-    );
+      function seedFrom(text) { return [...text].reduce((a,c)=>((a*31+c.charCodeAt(0))>>>0), 2166136261); }
+      function rngFactory(seed) { return () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296); }
+      function shuffle(arr, rand) { return [...arr].sort(() => rand() - .5); }
+      function key(x,y) { return x + "," + y; }
 
-  }
-
-
-  for(const row of p.grid){
-
-    if(
-      typeof row !== "string" ||
-      row.length !== 5
-    ){
-
-      throw new Error(
-        "Invalid grid row"
-      );
-
-    }
-
-  }
-
-
-  if(
-    !Array.isArray(p.across) ||
-    p.across.length !== 5
-  ){
-
-    throw new Error(
-      "Puzzle must have five Across clues"
-    );
-
-  }
-
-
-  if(
-    !Array.isArray(p.down) ||
-    p.down.length !== 5
-  ){
-
-    throw new Error(
-      "Puzzle must have five Down clues"
-    );
-
-  }
-
-
-  for(
-    const entry of [
-      ...p.across,
-      ...p.down
-    ]
-  ){
-
-    if(
-      typeof entry.answer !== "string" ||
-      entry.answer.length < 3 ||
-      entry.answer.length > 5
-    ){
-
-      throw new Error(
-        "Invalid answer length"
-      );
-
-    }
-
-  }
-
-}
-
-
-/* =========================================================
-   STORAGE
-========================================================= */
-
-function storageKey(){
-
-  return "mental-health-crossword-" +
-    dateKey;
-
-}
-
-
-function save(){
-
-  const data = [];
-
-  for(let r=0;r<5;r++){
-
-    for(let c=0;c<5;c++){
-
-      if(
-        cells[r] &&
-        cells[r][c] &&
-        cells[r][c].letter
-      ){
-
-        data.push([
-          r,
-          c,
-          cells[r][c].letter
-        ]);
-
+      function generatePuzzle() {
+        const rand = rngFactory(seedFrom(dateKey));
+        for (let attempt=0; attempt<180; attempt++) {
+          const options = shuffle(WORDS, rand).slice(0, 17);
+          const placed = [], grid = new Map();
+          function add(word, clue, x, y, dir) {
+            const cells = [];
+            for(let i=0;i<word.length;i++) {
+              const xx=x+(dir==="across"?i:0), yy=y+(dir==="down"?i:0);
+              cells.push({x:xx,y:yy,letter:word[i]});
+              const existing=grid.get(key(xx,yy)) || {letter:word[i], dirs:new Set()};
+              existing.dirs.add(dir); grid.set(key(xx,yy),existing);
+            }
+            placed.push({word,clue,x,y,dir,cells});
+          }
+          add(options[0][0], options[0][1], Math.floor((SIZE-options[0][0].length)/2), 7, "across");
+          function tryPlace(index) {
+            if(index === 10) return true;
+            const dir = index % 2 ? "down" : "across";
+            for (const [word, clue] of shuffle(options.filter(o=>!placed.some(p=>p.word===o[0])),rand)) {
+              for (const prior of shuffle(placed,rand)) {
+                for(let i=0;i<word.length;i++) for(let j=0;j<prior.word.length;j++) {
+                  if(word[i] !== prior.word[j]) continue;
+                  const x = dir==="across" ? prior.x+j-i : prior.x+j;
+                  const y = dir==="down" ? prior.y+j-i : prior.y+j;
+                  if(x<0||y<0||(dir==="across"&&x+word.length>SIZE)||(dir==="down"&&y+word.length>SIZE)) continue;
+                  let crossings=0, valid=true;
+                  for(let n=0;n<word.length;n++) {
+                    const xx=x+(dir==="across"?n:0), yy=y+(dir==="down"?n:0), found=grid.get(key(xx,yy));
+                    if(found) { if(found.letter!==word[n] || found.dirs.has(dir)) valid=false; else crossings++; }
+                  }
+                  if(valid && crossings>0) { add(word,clue,x,y,dir); if(tryPlace(index+1)) return true; placed.pop(); for(const c of [...grid.keys()]) grid.delete(c); for(const p of placed) p.cells.forEach(cell=>{const old=grid.get(key(cell.x,cell.y))||{letter:cell.letter,dirs:new Set()};old.dirs.add(p.dir);grid.set(key(cell.x,cell.y),old)}); }
+                }
+              }
+            }
+            return false;
+          }
+          if(tryPlace(1)) {
+            const minX=Math.min(...placed.flatMap(p=>p.cells.map(c=>c.x))), minY=Math.min(...placed.flatMap(p=>p.cells.map(c=>c.y)));
+            placed.forEach(p=>{p.x-=minX;p.y-=minY;p.cells.forEach(c=>{c.x-=minX;c.y-=minY})});
+            const maxX=Math.max(...placed.flatMap(p=>p.cells.map(c=>c.x))), maxY=Math.max(...placed.flatMap(p=>p.cells.map(c=>c.y)));
+            if(maxX<13&&maxY<13) {
+              const starts={}; let no=1;
+              [...placed].sort((a,b)=>a.y-b.y||a.x-b.x||a.dir.localeCompare(b.dir)).forEach(p=>{const k=key(p.x,p.y);if(!starts[k])starts[k]=no++;p.number=starts[k]});
+              return { placed, width:maxX+1, height:maxY+1 };
+            }
+          }
+        }
       }
 
-    }
+      function loadState() { try { state=JSON.parse(localStorage.getItem(storageKey)) || state; } catch(e) {} }
+      function saveState() { localStorage.setItem(storageKey, JSON.stringify(state)); }
 
-  }
-
-  localStorage.setItem(
-    storageKey(),
-    JSON.stringify(data)
-  );
-
-}
-
-
-function load(){
-
-  try{
-
-    const data =
-      JSON.parse(
-        localStorage.getItem(
-          storageKey()
-        )
-      );
-
-    if(!Array.isArray(data))
-      return;
-
-    for(
-      const item of data
-    ){
-
-      const [r,c,letter] = item;
-
-      if(
-        cells[r] &&
-        cells[r][c] &&
-        cells[r][c].letterElement
-      ){
-
-        cells[r][c].letter =
-          letter;
-
-        cells[r][c]
-          .letterElement
-          .textContent =
-          letter;
-
+      function cellWords(x,y) {
+        return puzzle.placed.filter(p=>p.cells.some(c=>c.x===x&&c.y===y));
       }
 
-    }
-
-  }catch(e){
-
-    console.warn(
-      "Could not load saved progress."
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   FIND ENTRY
-========================================================= */
-
-function getEntry(){
-
-  const list =
-    direction === "across"
-      ? puzzle.across
-      : puzzle.down;
-
-
-  return list.find(
-    entry => {
-
-      if(
-        direction === "across"
-      ){
-
-        return (
-          selectedRow === entry.row &&
-          selectedCol >= entry.col &&
-          selectedCol <
-            entry.col + entry.length
-        );
-
+      function getActiveWord() {
+        const list=cellWords(selectedCell.x,selectedCell.y);
+        return list.find(p=>p.dir===direction)||list[0];
       }
 
+      function setSelection(x,y,newDir) {
+        selectedCell={x,y};
+        const words=cellWords(x,y);
+        direction=words.some(w=>w.dir===newDir)?newDir:words[0].dir;
+        renderHighlights();
+        updateActive();
 
-      return (
-        selectedCol === entry.col &&
-        selectedRow >= entry.row &&
-        selectedRow <
-          entry.row + entry.length
-      );
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   NUMBER
-========================================================= */
-
-function cellNumber(r,c){
-
-  const all =
-    [
-      ...puzzle.across,
-      ...puzzle.down
-    ];
-
-  const entry =
-    all.find(
-      e =>
-        e.row === r &&
-        e.col === c
-    );
-
-  return entry
-    ? entry.number
-    : null;
-
-}
-
-
-/* =========================================================
-   DRAW GRID
-========================================================= */
-
-function drawGrid(){
-
-  const grid =
-    document.getElementById("grid");
-
-  grid.innerHTML = "";
-
-  cells = [];
-
-
-  for(let r=0;r<5;r++){
-
-    cells[r] = [];
-
-    for(let c=0;c<5;c++){
-
-      const cell =
-        document.createElement("div");
-
-      cell.className = "cell";
-
-
-      if(puzzle.grid[r][c] === "#"){
-
-        cell.classList.add("block");
-
-        grid.appendChild(cell);
-
-        cells[r][c] = {
-          element:cell,
-          letter:""
-        };
-
-        continue;
-
+        // Focus the input element after selection
+        const input = document.querySelector('.cell.fill input[data-x="'+x+'"][data-y="'+y+'"]');
+        if(input) input.focus();
       }
 
+      function renderGrid() {
+        const root=document.getElementById("crossword-grid");
+        root.style.setProperty("--grid-size", puzzle.width);
+        root.innerHTML="";
 
-      const number =
-        cellNumber(r,c);
+        const lookup=new Map();
+        puzzle.placed.forEach(p=>p.cells.forEach(c=>lookup.set(key(c.x,c.y),c)));
 
+        const starts={};
+        puzzle.placed.forEach(p=>starts[key(p.x,p.y)]=p.number);
 
-      if(number !== null){
+        for(let y=0;y<puzzle.height;y++) {
+          for(let x=0;x<puzzle.width;x++) {
+            const c=lookup.get(key(x,y));
+            const cell = document.createElement("div");
+            cell.className = "cell " + (c ? "fill" : "");
+            cell.setAttribute("role", "gridcell");
 
-        const n =
-          document.createElement("span");
+            if(c) {
+              cell.dataset.x = x;
+              cell.dataset.y = y;
 
-        n.className = "number";
-        n.textContent = number;
+              // Create input element
+              const input = document.createElement("input");
+              input.type = "text";
+              input.maxLength = 1;
+              input.dataset.x = x;
+              input.dataset.y = y;
+              input.value = state.letters[key(x,y)] || "";
 
-        cell.appendChild(n);
+              // Add number label if this is a starting cell
+              if(starts[key(x,y)]) {
+                const n = document.createElement("span");
+                n.className = "cell-number";
+                n.textContent = starts[key(x,y)];
+                cell.appendChild(n);
+              }
 
+              cell.appendChild(input);
+
+              // Handle click on cell (not input)
+              cell.addEventListener("click", (e) => {
+                if(e.target === input) return; // Let input handle its own clicks
+                const isSame = selectedCell && selectedCell.x === x && selectedCell.y === y;
+                const words = cellWords(x,y);
+                setSelection(x, y, isSame && words.length > 1 ? (direction === "across" ? "down" : "across") : direction);
+              });
+
+              // Handle input events
+              input.addEventListener("input", (e) => {
+                const value = e.target.value.toUpperCase();
+                if(/^[A-Z]$/.test(value)) {
+                  state.letters[key(x,y)] = value;
+                  saveState();
+                  refreshLetters();
+                  moveInWord(1);
+                  completeCheck();
+                } else if(value === "") {
+                  const k = key(x,y);
+                  if(state.letters[k]) {
+                    delete state.letters[k];
+                    saveState();
+                    refreshLetters();
+                  }
+                }
+              });
+
+              input.addEventListener("focus", () => {
+                const isSame = selectedCell && selectedCell.x === x && selectedCell.y === y;
+                if(!isSame) {
+                  const words = cellWords(x,y);
+                  setSelection(x, y, words.some(w => w.dir === direction) ? direction : words[0].dir);
+                }
+              });
+
+              input.addEventListener("keydown", (e) => {
+                // Handle navigation keys
+                if(["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"].includes(e.key)) {
+                  e.preventDefault();
+                  const delta = {
+                    ArrowLeft: [-1, 0],
+                    ArrowRight: [1, 0],
+                    ArrowUp: [0, -1],
+                    ArrowDown: [0, 1]
+                  }[e.key];
+                  const nx = x + delta[0];
+                  const ny = y + delta[1];
+                  if(cellWords(nx, ny).length) {
+                    setSelection(nx, ny, direction);
+                  }
+                } else if(e.key === "Backspace") {
+                  e.preventDefault();
+                  const k = key(x,y);
+                  if(input.selectionStart === 0 && input.selectionEnd === 0) {
+                    // Move backward if at start of input
+                    moveInWord(-1);
+                  } else {
+                    // Clear the current cell
+                    if(state.letters[k]) {
+                      delete state.letters[k];
+                      input.value = "";
+                      saveState();
+                      refreshLetters();
+                    }
+                  }
+                } else if(e.key === "Enter") {
+                  e.preventDefault();
+                  setSelection(x, y, direction === "across" ? "down" : "across");
+                }
+              });
+
+              // Set aria-label for accessibility
+              input.setAttribute("aria-label", "Row " + (y+1) + ", column " + (x+1) + (starts[key(x,y)] ? ", clue " + starts[key(x,y)] : "") + ", " + (input.value || "empty"));
+            } else {
+              cell.classList.add("empty");
+            }
+
+            root.appendChild(cell);
+          }
+        }
+
+        renderHighlights();
       }
 
+      function renderClues() {
+        ["across","down"].forEach(dir=>{
+          const root=document.getElementById(dir+"-clues");
+          root.innerHTML="";
+          puzzle.placed.filter(p=>p.dir===dir).sort((a,b)=>a.number-b.number).forEach(p=>{
+            const b=document.createElement("button");
+            b.type="button";
+            b.className="clue-item focus-ring";
+            b.dataset.dir=dir;
+            b.dataset.number=p.number;
+            b.innerHTML='<span class="clue-number">'+p.number+'</span><span class="flex-1">'+p.clue+'</span><span class="clue-length">('+p.word.length+')</span>';
+            b.addEventListener("click",()=>setSelection(p.x,p.y,dir));
+            root.appendChild(b);
+          });
+        });
+      }
 
-      const letter =
-        document.createElement("span");
+      function renderHighlights() {
+        if(!selectedCell) return;
+        const active = getActiveWord();
+        const activeKeys = new Set(active.cells.map(c => key(c.x, c.y)));
 
-      letter.className = "letter";
+        document.querySelectorAll(".cell.fill").forEach(el => {
+          const k = key(+el.dataset.x, +el.dataset.y);
+          el.classList.toggle("active-word", activeKeys.has(k));
+          el.classList.toggle("selected", k === key(selectedCell.x, selectedCell.y));
+          el.classList.toggle("crossing", k === key(selectedCell.x, selectedCell.y) && cellWords(+el.dataset.x, +el.dataset.y).length > 1);
+        });
+      }
 
-      cell.appendChild(letter);
+      function updateActive() {
+        const word = getActiveWord();
+        document.getElementById("active-direction").textContent = word.dir + " · " + word.number;
+        document.getElementById("active-clue").textContent = word.clue;
+        renderHighlights();
+        updateProgress();
+      }
 
+      function updateProgress() {
+        const all = [...new Set(puzzle.placed.flatMap(p => p.cells.map(c => key(c.x, c.y))))];
+        const filled = all.filter(k => state.letters[k]).length;
+        const pct = Math.round(filled / all.length * 100);
+        document.getElementById("progress-text").textContent = pct + "%";
+        document.getElementById("progress-fill").style.width = pct + "%";
+      }
 
-      cells[r][c] = {
-        element:cell,
-        letterElement:letter,
-        letter:""
+      function refreshLetters() {
+        document.querySelectorAll(".cell.fill input").forEach(el => {
+          const k = key(+el.dataset.x, +el.dataset.y);
+          const value = state.letters[k] || "";
+          if(el.value !== value) {
+            el.value = value;
+          }
+          el.classList.remove("incorrect");
+        });
+        updateProgress();
+      }
+
+      function toast(text) {
+        const t = document.getElementById("toast");
+        t.textContent = text;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 2300);
+      }
+
+      function moveInWord(step) {
+        const p = getActiveWord();
+        const idx = p.cells.findIndex(c => c.x === selectedCell.x && c.y === selectedCell.y);
+        const next = p.cells[Math.max(0, Math.min(p.cells.length - 1, idx + step))];
+        setSelection(next.x, next.y, p.dir);
+      }
+
+      function completeCheck() {
+        const all = puzzle.placed.flatMap(p => p.cells);
+        const solved = all.every(c => state.letters[key(c.x, c.y)] === c.letter);
+        if(solved && !state.completed) {
+          state.completed = true;
+          saveState();
+          document.getElementById("completion-panel").classList.remove("hidden");
+          document.getElementById("today-status").textContent = "Completed today";
+          updateStreak();
+          toast("A gentle win for today.");
+        }
+      }
+
+      function checkLetter() {
+        const k = key(selectedCell.x, selectedCell.y);
+        const answer = getActiveWord().cells.find(c => c.x === selectedCell.x && c.y === selectedCell.y).letter;
+        if(!state.letters[k]) return toast("Try a letter first.");
+        if(state.letters[k] === answer) {
+          toast("That letter fits.");
+        } else {
+          const input = document.querySelector('.cell.fill input[data-x="'+selectedCell.x+'"][data-y="'+selectedCell.y+'"]');
+          if(input) input.classList.add("incorrect");
+          toast("Not quite — take your time.");
+        }
+      }
+
+      function checkWord() {
+        const p = getActiveWord();
+        const okay = p.cells.every(c => state.letters[key(c.x, c.y)] === c.letter);
+        if(okay) {
+          toast("This word is looking good.");
+        } else {
+          p.cells.forEach(c => {
+            if(state.letters[key(c.x, c.y)] && state.letters[key(c.x, c.y)] !== c.letter) {
+              const input = document.querySelector('.cell.fill input[data-x="'+c.x+'"][data-y="'+c.y+'"]');
+              if(input) input.classList.add("incorrect");
+            }
+          });
+          toast("A few letters may need another look.");
+        }
+      }
+
+      function showConfirm(action) {
+        pendingAction = action;
+        document.getElementById("confirm-panel").classList.remove("hidden");
+      }
+
+      function doAction() {
+        const p = getActiveWord();
+        if(pendingAction === "letter") {
+          const c = p.cells.find(c => c.x === selectedCell.x && c.y === selectedCell.y);
+          state.letters[key(c.x, c.y)] = c.letter;
+          refreshLetters();
+        }
+        if(pendingAction === "word") {
+          p.cells.forEach(c => state.letters[key(c.x, c.y)] = c.letter);
+          refreshLetters();
+        }
+        if(pendingAction === "reset") {
+          state = { letters: {}, completed: false };
+          document.getElementById("completion-panel").classList.add("hidden");
+          document.getElementById("today-status").textContent = "Ready to begin";
+        }
+        saveState();
+        completeCheck();
+        document.getElementById("confirm-panel").classList.add("hidden");
+        toast(pendingAction === "reset" ? "Puzzle reset." : "A little help, right when you need it.");
+        pendingAction = null;
+      }
+
+      function updateStreak() {
+        const done = [];
+        for(let i = 0; i < 365; i++) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const k = [d.getFullYear(), String(d.getMonth() + 1).padStart(2, "0"), String(d.getDate()).padStart(2, "0")].join("-");
+          try {
+            if(JSON.parse(localStorage.getItem("mindful-crossword-" + k))?.completed) {
+              done.push(k);
+            } else break;
+          } catch(e) { break; }
+        }
+        document.getElementById("streak-value").textContent = done.length + " day" + (done.length === 1 ? "" : "s");
+      }
+
+      // Initialize
+      puzzle = generatePuzzle();
+      loadState();
+
+      document.getElementById("daily-date").textContent = localDate.toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+      });
+
+      renderGrid();
+      renderClues();
+
+      const first = puzzle.placed.find(p => p.dir === "across");
+      if(first) {
+        setSelection(first.x, first.y, "across");
+      }
+
+      updateStreak();
+
+      if(state.completed) {
+        document.getElementById("completion-panel").classList.remove("hidden");
+        document.getElementById("today-status").textContent = "Completed today";
+      }
+
+      // Button event listeners
+      document.getElementById("across-choice").onclick = () => {
+        if(selectedCell) setSelection(selectedCell.x, selectedCell.y, "across");
+      };
+      document.getElementById("down-choice").onclick = () => {
+        if(selectedCell) setSelection(selectedCell.x, selectedCell.y, "down");
+      };
+      document.getElementById("check-letter").onclick = checkLetter;
+      document.getElementById("check-word").onclick = checkWord;
+      document.getElementById("reveal-letter").onclick = () => showConfirm("letter");
+      document.getElementById("reveal-word").onclick = () => showConfirm("word");
+      document.getElementById("reset-puzzle").onclick = () => showConfirm("reset");
+      document.getElementById("confirm-action").onclick = doAction;
+      document.getElementById("cancel-action").onclick = () => {
+        pendingAction = null;
+        document.getElementById("confirm-panel").classList.add("hidden");
+      };
+      document.getElementById("instructions-toggle").onclick = () => {
+        const p = document.getElementById("instructions-panel");
+        const show = p.classList.toggle("hidden");
+        p.setAttribute("aria-hidden", String(!show));
       };
 
-
-      cell.addEventListener(
-        "click",
-        () => {
-
-          if(
-            selectedRow === r &&
-            selectedCol === c
-          ){
-
-            direction =
-              direction === "across"
-                ? "down"
-                : "across";
-
-          }else{
-
-            selectedRow = r;
-            selectedCol = c;
-
-          }
-
-          updateSelection();
-
-        }
-      );
-
-
-      grid.appendChild(cell);
-
-    }
-
-  }
-
-}
-
-
-/* =========================================================
-   CLUES
-========================================================= */
-
-function drawClues(){
-
-  drawClueList(
-    "across",
-    document.getElementById("across")
-  );
-
-  drawClueList(
-    "down",
-    document.getElementById("down")
-  );
-
-}
-
-
-function drawClueList(
-  type,
-  container
-){
-
-  container.innerHTML = "";
-
-  const list =
-    type === "across"
-      ? puzzle.across
-      : puzzle.down;
-
-
-  list.forEach(
-    (entry,index) => {
-
-      const item =
-        document.createElement("div");
-
-      item.className = "clue";
-
-      item.innerHTML = `
-        <span class="clue-number">
-          ${entry.number}.
-        </span>
-        <span>
-          ${escapeHTML(entry.clue)}
-        </span>
-      `;
-
-
-      item.addEventListener(
-        "click",
-        () => {
-
-          direction = type;
-
-          selectedRow =
-            entry.row;
-
-          selectedCol =
-            entry.col;
-
-          updateSelection();
-
-        }
-      );
-
-
-      container.appendChild(item);
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
-
-function escapeHTML(value){
-
-  return String(value)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-
-}
-
-
-/* =========================================================
-   SELECTION
-========================================================= */
-
-function updateSelection(){
-
-  document
-    .querySelectorAll(".cell")
-    .forEach(
-      el => {
-        el.classList.remove(
-          "highlight",
-          "selected"
-        );
-      }
-    );
-
-
-  const entry =
-    getEntry();
-
-
-  if(!entry)
-    return;
-
-
-  for(
-    let i=0;
-    i<entry.length;
-    i++
-  ){
-
-    const r =
-      direction === "across"
-        ? entry.row
-        : entry.row + i;
-
-    const c =
-      direction === "across"
-        ? entry.col + i
-        : entry.col;
-
-
-    cells[r][c]
-      .element
-      .classList.add("highlight");
-
-  }
-
-
-  cells[selectedRow][selectedCol]
-    .element
-    .classList.add("selected");
-
-
-  document.getElementById(
-    "activeNumber"
-  ).textContent =
-    `${entry.number}${direction === "across" ? "A" : "D"}`;
-
-
-  document.getElementById(
-    "activeClue"
-  ).textContent =
-    entry.clue;
-
-}
-
-
-/* =========================================================
-   INPUT
-========================================================= */
-
-function enterLetter(letter){
-
-  const cell =
-    cells[selectedRow][selectedCol];
-
-
-  if(
-    !cell ||
-    !cell.letterElement
-  )
-    return;
-
-
-  cell.letter = letter;
-
-  cell.letterElement.textContent =
-    letter;
-
-  cell.element.classList.remove(
-    "correct",
-    "wrong"
-  );
-
-  save();
-
-  moveForward();
-
-}
-
-
-function erase(){
-
-  const cell =
-    cells[selectedRow][selectedCol];
-
-
-  if(!cell)
-    return;
-
-
-  if(cell.letter){
-
-    cell.letter = "";
-
-    cell.letterElement.textContent = "";
-
-    cell.element.classList.remove(
-      "correct",
-      "wrong"
-    );
-
-    save();
-
-    return;
-
-  }
-
-
-  moveBackward();
-
-}
-
-
-/* =========================================================
-   MOVEMENT
-========================================================= */
-
-function moveForward(){
-
-  const entry =
-    getEntry();
-
-
-  if(!entry)
-    return;
-
-
-  if(direction === "across"){
-
-    if(
-      selectedCol <
-      entry.col + entry.length - 1
-    ){
-
-      selectedCol++;
-
-    }
-
-  }else{
-
-    if(
-      selectedRow <
-      entry.row + entry.length - 1
-    ){
-
-      selectedRow++;
-
-    }
-
-  }
-
-
-  updateSelection();
-
-}
-
-
-function moveBackward(){
-
-  const entry =
-    getEntry();
-
-
-  if(!entry)
-    return;
-
-
-  if(direction === "across"){
-
-    if(
-      selectedCol > entry.col
-    ){
-
-      selectedCol--;
-
-    }
-
-  }else{
-
-    if(
-      selectedRow > entry.row
-    ){
-
-      selectedRow--;
-
-    }
-
-  }
-
-
-  updateSelection();
-
-}
-
-
-/* =========================================================
-   KEYBOARD
-========================================================= */
-
-document.addEventListener(
-  "keydown",
-  event => {
-
-    if(
-      /^[a-zA-Z]$/.test(event.key)
-    ){
-
-      enterLetter(
-        event.key.toUpperCase()
-      );
-
-      event.preventDefault();
-
-      return;
-
-    }
-
-
-    if(
-      event.key === "Backspace"
-    ){
-
-      erase();
-
-      event.preventDefault();
-
-      return;
-
-    }
-
-
-    if(
-      event.key === "Tab"
-    ){
-
-      direction =
-        direction === "across"
-          ? "down"
-          : "across";
-
-      updateSelection();
-
-      event.preventDefault();
-
-      return;
-
-    }
-
-
-    if(
-      event.key === "ArrowLeft"
-    ){
-
-      moveHorizontal(-1);
-      event.preventDefault();
-
-    }
-
-
-    if(
-      event.key === "ArrowRight"
-    ){
-
-      moveHorizontal(1);
-      event.preventDefault();
-
-    }
-
-
-    if(
-      event.key === "ArrowUp"
-    ){
-
-      moveVertical(-1);
-      event.preventDefault();
-
-    }
-
-
-    if(
-      event.key === "ArrowDown"
-    ){
-
-      moveVertical(1);
-      event.preventDefault();
-
-    }
-
-  }
-);
-
-
-function moveHorizontal(amount){
-
-  let c =
-    selectedCol + amount;
-
-
-  while(
-    c >= 0 &&
-    c < 5
-  ){
-
-    if(
-      puzzle.grid[selectedRow][c] !== "#"
-    ){
-
-      selectedCol = c;
-      direction = "across";
-      updateSelection();
-      return;
-
-    }
-
-    c += amount;
-
-  }
-
-}
-
-
-function moveVertical(amount){
-
-  let r =
-    selectedRow + amount;
-
-
-  while(
-    r >= 0 &&
-    r < 5
-  ){
-
-    if(
-      puzzle.grid[r][selectedCol] !== "#"
-    ){
-
-      selectedRow = r;
-      direction = "down";
-      updateSelection();
-      return;
-
-    }
-
-    r += amount;
-
-  }
-
-}
-
-
-/* =========================================================
-   CHECK
-========================================================= */
-
-function check(){
-
-  let wrong = 0;
-  let empty = 0;
-
-
-  for(let r=0;r<5;r++){
-
-    for(let c=0;c<5;c++){
-
-      if(
-        puzzle.grid[r][c] === "#"
-      )
-        continue;
-
-
-      const cell =
-        cells[r][c];
-
-
-      cell.element.classList.remove(
-        "correct",
-        "wrong"
-      );
-
-
-      if(!cell.letter){
-
-        empty++;
-        continue;
-
-      }
-
-
-      if(
-        cell.letter ===
-        puzzle.grid[r][c]
-      ){
-
-        cell.element.classList.add(
-          "correct"
-        );
-
-      }else{
-
-        wrong++;
-
-        cell.element.classList.add(
-          "wrong"
-        );
-
-      }
-
-    }
-
-  }
-
-
-  const status =
-    document.getElementById("status");
-
-
-  if(wrong){
-
-    status.textContent =
-      `${wrong} incorrect letter${wrong === 1 ? "" : "s"}.`;
-
-    status.style.color =
-      "#b3261e";
-
-  }else if(empty){
-
-    status.textContent =
-      "So far, so good.";
-
-    status.style.color =
-      "#555";
-
-  }else{
-
-    status.textContent =
-      "🎉 Puzzle complete!";
-
-    status.style.color =
-      "#287a4b";
-
-    localStorage.setItem(
-      "complete-" + dateKey,
-      "1"
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   CLEAR
-========================================================= */
-
-function clearPuzzle(){
-
-  for(let r=0;r<5;r++){
-
-    for(let c=0;c<5;c++){
-
-      if(
-        puzzle.grid[r][c] === "#"
-      )
-        continue;
-
-
-      const cell =
-        cells[r][c];
-
-
-      cell.letter = "";
-
-      cell.letterElement.textContent =
-        "";
-
-      cell.element.classList.remove(
-        "correct",
-        "wrong"
-      );
-
-    }
-
-  }
-
-
-  localStorage.removeItem(
-    storageKey()
-  );
-
-
-  document.getElementById(
-    "status"
-  ).textContent = "";
-
-}
-
-
-/* =========================================================
-   REVEAL
-========================================================= */
-
-function reveal(){
-
-  if(
-    !confirm(
-      "Reveal the entire puzzle?"
-    )
-  ){
-
-    return;
-
-  }
-
-
-  for(let r=0;r<5;r++){
-
-    for(let c=0;c<5;c++){
-
-      if(
-        puzzle.grid[r][c] === "#"
-      )
-        continue;
-
-
-      const cell =
-        cells[r][c];
-
-
-      cell.letter =
-        puzzle.grid[r][c];
-
-      cell.letterElement.textContent =
-        puzzle.grid[r][c];
-
-      cell.element.classList.add(
-        "correct"
-      );
-
-    }
-
-  }
-
-
-  save();
-
-
-  document.getElementById(
-    "status"
-  ).textContent =
-    "Puzzle revealed.";
-
-}
-
-
-/* =========================================================
-   TIMER
-========================================================= */
-
-function updateTimer(){
-
-  const now =
-    new Date();
-
-
-  const tomorrow =
-    new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate() + 1
-    );
-
-
-  let seconds =
-    Math.max(
-      0,
-      Math.floor(
-        (tomorrow - now) / 1000
-      )
-    );
-
-
-  const hours =
-    Math.floor(
-      seconds / 3600
-    );
-
-  seconds %= 3600;
-
-
-  const minutes =
-    Math.floor(
-      seconds / 60
-    );
-
-  seconds %= 60;
-
-
-  document.getElementById(
-    "timer"
-  ).textContent =
-    "Next puzzle in " +
-    String(hours).padStart(2,"0") +
-    ":" +
-    String(minutes).padStart(2,"0") +
-    ":" +
-    String(seconds).padStart(2,"0");
-
-}
-
-
-/* =========================================================
-   INITIALIZATION
-========================================================= */
-
-function initialize(){
-
-  drawGrid();
-
-  drawClues();
-
-  load();
-
-  updateTimer();
-
-  setInterval(
-    updateTimer,
-    1000
-  );
-
-
-  /*
-    Select first playable square.
-  */
-
-  outer:
-  for(let r=0;r<5;r++){
-
-    for(let c=0;c<5;c++){
-
-      if(
-        puzzle.grid[r][c] !== "#"
-      ){
-
-        selectedRow = r;
-        selectedCol = c;
-
-        break outer;
-
-      }
-
-    }
-
-  }
-
-
-  updateSelection();
-
-}
-
-
-/* =========================================================
-   BUTTONS
-========================================================= */
-
-document.getElementById(
-  "checkBtn"
-).addEventListener(
-  "click",
-  check
-);
-
-document.getElementById(
-  "clearBtn"
-).addEventListener(
-  "click",
-  clearPuzzle
-);
-
-document.getElementById(
-  "revealBtn"
-).addEventListener(
-  "click",
-  reveal
-);
-
-
-/* =========================================================
-   START
-========================================================= */
-
-loadPuzzle();
-
-</script>
-
+      lucide.createIcons();
+    })();
+  </script>
 </body>
 </html>
